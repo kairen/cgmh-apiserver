@@ -1,0 +1,766 @@
+swagger: '2.0'
+info:
+  description: CGMH Forms API
+  version: 1.0.0
+  title: CGMH Forms API
+  termsOfService: http://localhost
+  contact:
+    email: kyle.b@inwinstack.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: localhost
+tags:
+- name: Auth
+  description: User Authentication API
+- name: User
+  description: User API
+- name: Level
+  description: User Level API
+- name: Point
+  description: User Point API
+- name: PointLog
+  description: User Point Log API
+- name: Form
+  description: User Form API
+# API Schemes
+schemes:
+- http
+paths:
+  "/auth/login":
+    post:
+      tags:
+      - Auth
+      summary: 'User login'
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: test@test.com
+            password:
+              type: string
+              example: 123456
+      responses:
+        '200':
+          description: 'Login Success'
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpb'
+                  role:
+                    type: string
+                    example: 'admin'
+        '400':
+          description: 'Invalid User'
+        '500':
+          description: 'Internal Server Error'
+  "/auth/register":
+    post:
+      tags:
+      - Auth
+      summary: 'Register new user'
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/register"
+      responses:
+        '200':
+          description: 'Register Success'
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'You have been successfully registered'
+              code:
+                type: integer
+                example: 200
+              data:
+                type: object
+        '400':
+          description: 'Invalid Payload'
+        '500':
+          description: 'Internal Server Error'
+  "/auth/resetpwd/{userid}":
+    put:
+      tags:
+      - Auth
+      summary: 'Reset the user password'
+      security:
+        - BearerAuth: [admin]
+      responses:
+        '200':
+          description: 'Reset password success'
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                type: object
+        '400':
+          description: 'Invalid User'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/user":
+    get:
+      tags:
+      - User
+      summary: 'List all users'
+      security:
+        - BearerAuth: [admin]
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                type: array
+                items:
+                  "$ref": "#/definitions/user"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    put:
+      tags:
+      - User
+      summary: 'Update user'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/user"
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'User has been updated'
+              code:
+                type: integer
+                example: 200
+              data:
+                "$ref": "#/definitions/user"
+        '400':
+          description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    delete:
+      tags:
+      - User
+      summary: 'Delete user'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/user"
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'User has been deleted'
+              code:
+                type: integer
+                example: 200
+              data:
+                type: object
+        '400':
+          description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/level":
+    get:
+      tags:
+      - Level
+      summary: 'List all levels'
+      security:
+        - BearerAuth: [admin]
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                type: array
+                items:
+                  "$ref": "#/definitions/level"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    post:
+      tags:
+      - Level
+      summary: 'Create new level data'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/level"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    put:
+      tags:
+      - Level
+      summary: 'Update level data'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/level"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    delete:
+      tags:
+      - Level
+      summary: 'Delete level data'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/level"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '404':
+          description: 'Not Found'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/point/{userid}":
+    put:
+      tags:
+      - Point
+      summary: 'Update point data by user id'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/point"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/pointlog":
+    get:
+      tags:
+      - PointLog
+      summary: 'List all point logs'
+      parameters:
+      - in: query
+        name: userUUID
+        type: string
+        description: 'query by user uuid'
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                type: array
+                items:
+                  "$ref": "#/definitions/pointLog"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/form":
+    get:
+      tags:
+      - Form
+      summary: 'List all forms'
+      parameters:
+      - in: query
+        name: userUUID
+        type: string
+        description: 'query by user uuid'
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                type: array
+                items:
+                  "$ref": "#/definitions/form"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    post:
+      tags:
+      - Form
+      summary: 'Create a form'
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/form"
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'Form has been created'
+              code:
+                type: integer
+                example: 200
+              data:
+                "$ref": "#/definitions/form"
+        '400':
+          description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    put:
+      tags:
+      - Form
+      summary: 'Update a form'
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/form"
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'Form has been updated'
+              code:
+                type: integer
+                example: 200
+              data:
+                "$ref": "#/definitions/form"
+        '400':
+          description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+    delete:
+      tags:
+      - Form
+      summary: 'Delete a form'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          "$ref": "#/definitions/form"
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'Form has been deleted'
+              code:
+                type: integer
+                example: 200
+              data:
+                type: object
+        '400':
+          description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+# Model Definitions
+definitions:
+  register:
+    type: object
+    required:
+    - email
+    - password
+    - name
+    - agency
+    - unit
+    - position
+    - phone
+    properties:
+      email:
+        type: string
+        example: test@test.com
+      password:
+        type: string
+        example: p@ssw0rd
+      name:
+        type: string
+        example: John
+      agency:
+        type: string
+        example: CGMH
+      unit:
+       type: string
+       example: AI team
+      position:
+       type: string
+       example: enginner
+      phone:
+        type: string
+        example: 0912345678
+  user:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid
+        description: auto genearate by server
+      email:
+        type: string
+        example: test@test.com
+      name:
+        type: string
+        example: John
+      agency:
+        type: string
+        example: CGMH
+      unit:
+       type: string
+       example: AI team
+      position:
+       type: string
+       example: enginner
+      phone:
+        type: string
+        example: 0912345678
+      level:
+        type: string
+        example: Level 1
+      point:
+        type: integer
+        example: 5000
+      isAdmin:
+        type: bool
+        example: false
+      active:
+        type: bool
+        example: true
+  level:
+    type: object
+    required:
+    - name
+    - gpu
+    - day
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: auto genearate by db
+      name:
+        type: string
+        example: 'LEVEL 3'
+      gpu:
+        type: integer
+        example: 200
+      day:
+        type: integer
+        example: 100
+      description:
+        type: string
+        example: 'Normal user'
+  point:
+    type: object
+    required:
+    - adminUUID
+    - action
+    - point
+    - time
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: auto genearate by db
+      adminUUID:
+        type: string
+        example: u00001
+      action:
+        type: integer
+        example: 0
+        description: "0 is sub point, 1 is add point"
+      point:
+        type: integer
+        example: 100
+      time:
+        type: string
+        example: '2018-09-25T11:33:48.000'
+        description: ISODate
+  pointLog:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: auto genearate by db
+      adminUUID:
+        type: string
+        example: admin@test.com
+      userUUID:
+        type: string
+        example: user@test.com
+      action:
+        type: integer
+        example: 0
+        description: "0 is sub point, 1 is add point"
+      point:
+        type: integer
+        example: 100
+      time:
+        type: string
+        example: '2018-09-25T11:33:48.000'
+        description: ISODate
+  form:
+    type: object
+    required:
+    - ownerUserUUID
+    - accessTime
+    - reason
+    - name
+    - phone
+    - email
+    - projectName
+    - irbNumber
+    - fundingSource
+    - projectSchedule
+    - trainingModelSource
+    - trainingModelDiskSize
+    - trainingEnvironment
+    - numGPUs
+    - language
+    - expectTime
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: auto genearate by db
+      ownerUserUUID:
+        type: string
+        format: uuid
+        example: u00001
+      accessTime:
+        type: string
+        example: '2018-09-25T11:33:48.000'
+        description: ISODate
+      active:
+        type: integer
+        example: 0
+        description: "0 is reject, 1 is inactive, 2 is active "
+      reason:
+        type: string
+        example: 'The project need'
+      name:
+        type: string
+        example: 'John'
+      phone:
+        type: string
+        example: 0912345678
+      email:
+        type: string
+        example: user1@test.com
+      projectName:
+        type: string
+        example: 'CGMH Project'
+      irbNumber:
+        type: string
+        example: irb0001
+      fundingSource:
+        type: string
+        exmpale: 'CHMH'
+      projectSchedule:
+        type: object
+        properties:
+          startDate:
+            type: string
+            format: date
+            example: '2018-09-01'
+          endDate:
+            type: string
+            format: date
+            example: '2018-09-30'
+      modelArchitecture:
+        type: string
+        example: 'CNN'
+      modelLayer:
+        type: integer
+        example: 3
+      os:
+        type: string
+        example: 'Ubuntu 16.04'
+      gpuModel:
+        type: string
+        example: 'NVIDIA Tesla V100'
+      epochTime:
+        type: string
+        example: '1 day 3 hour'
+      epochSize:
+        type: integer
+        exmaple: 5
+      batchSize:
+        type: integer
+        example: 3
+      trainingModelSource:
+        type: string
+        example: 'The offical page download'
+      trainingModelDiskSize:
+        type: integer
+        example: 100
+      dataType:
+        type: string
+        example: 'Image'
+      trainingModelData:
+        type: integer
+        example: 12000
+      trainingEnvironment:
+        type: string
+        example: 'Tensorflow'
+      numGPUs:
+        type: integer
+        exmpale: 2
+      trainingType:
+        type: string
+        example: 'Supervised'
+      language:
+        type: string
+        example: 'Python'
+      expectTime:
+        type: object
+        properties:
+          startDate:
+            type: string
+            format: date
+            example: '2018-09-04'
+          endDate:
+            type: string
+            format: date
+            example: '2018-09-16'
+# Components
+components:
+  securitySchemes:
+  BearerAuth:
+      type: http
+      scheme: bearer
+

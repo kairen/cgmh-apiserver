@@ -1,0 +1,578 @@
+{
+	"info": {
+		"_postman_id": "d04f2ea2-c79d-4f6b-9acb-d1ebcae886fb",
+		"name": "CGMH",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7195c940-7168-46d7-bfbc-811c6bcbd54b",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"token\", jsonData.data.token)"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"admin@example.com\",\n\t\"password\": \"r00tme\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/auth/login",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7195c940-7168-46d7-bfbc-811c6bcbd54b",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"token\", jsonData.data.token)"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"user@example.com\",\n\t\"password\": \"r00tme\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/auth/login",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c1fb84a7-a615-41fe-bcca-0c9589ed0998",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"user@example.com\",\n\t\"password\": \"r00tme\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/auth/register",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Common",
+			"item": [
+				{
+					"name": "Get healthz",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"uuid\": \"i00002\",\n        \"name\": \"John wick\",\n        \"number\": \"iws-0002\",\n        \"card_id\": \"A123456789\",\n        \"birth_day\": \"1970-01-01\",\n        \"address\": \"First Road.\",\n        \"phone\": \"0800-061-000\",\n        \"entry_date\": \"2015-01-01\",\n        \"exit_date\": \"\",\n        \"seniority\": 2,\n        \"department\": \"IT\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/healthz",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"healthz"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "List user",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"uuid\": \"i00002\",\n        \"name\": \"John wick\",\n        \"number\": \"iws-0002\",\n        \"card_id\": \"A123456789\",\n        \"birth_day\": \"1970-01-01\",\n        \"address\": \"First Road.\",\n        \"phone\": \"0800-061-000\",\n        \"entry_date\": \"2015-01-01\",\n        \"exit_date\": \"\",\n        \"seniority\": 2,\n        \"department\": \"IT\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/user",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c1fb84a7-a615-41fe-bcca-0c9589ed0998",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"uuid\": \"u00011\",\n    \"email\": \"user@example.com\",\n    \"password\": \"r00tme\",\n    \"isAdmin\": false,\n    \"active\": true\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/user",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c1fb84a7-a615-41fe-bcca-0c9589ed0998",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"uuid\": \"u00010\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/user",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Form",
+			"item": [
+				{
+					"name": "List form",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4694dc23-451e-4b21-be67-3df61e83587d",
+								"type": "text/javascript",
+								"exec": [
+									"var root = JSON.parse(responseBody);",
+									"if (root.data.length > 0) {",
+									"    pm.environment.set(\"form_id\", root.data[0].id)",
+									"} ",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"uuid\": \"i00002\",\n        \"name\": \"John wick\",\n        \"number\": \"iws-0002\",\n        \"card_id\": \"A123456789\",\n        \"birth_day\": \"1970-01-01\",\n        \"address\": \"First Road.\",\n        \"phone\": \"0800-061-000\",\n        \"entry_date\": \"2015-01-01\",\n        \"exit_date\": \"\",\n        \"seniority\": 2,\n        \"department\": \"IT\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/form?",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"form"
+							],
+							"query": [
+								{
+									"key": "endDate",
+									"value": "2018-10-04T15:04:05.999",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get form by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"uuid\": \"i00002\",\n        \"name\": \"John wick\",\n        \"number\": \"iws-0002\",\n        \"card_id\": \"A123456789\",\n        \"birth_day\": \"1970-01-01\",\n        \"address\": \"First Road.\",\n        \"phone\": \"0800-061-000\",\n        \"entry_date\": \"2015-01-01\",\n        \"exit_date\": \"\",\n        \"seniority\": 2,\n        \"department\": \"IT\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/form/{{form_id}}?",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"form",
+								"{{form_id}}"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2018-10-02T15:04:05.999",
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": "2018-10-04T15:04:05.999",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create form",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c1fb84a7-a615-41fe-bcca-0c9589ed0998",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ownerUserUUID\": \"u00011\",\n  \"accessTime\": \"2018-09-25T11:33:48\",\n  \"resource\": \"For testing\",\n  \"modelArchitecture\": \"CNN\",\n  \"modelLayer\": 3,\n  \"os\": \"Ubuntu 16.04\",\n  \"gpuModel\": \"NVIDIA Tesla V100\",\n  \"epochTime\": \"1 day 3 hour\",\n  \"epochSize\": 0,\n  \"batchSize\": 3,\n  \"trainingModelSource\": \"The offical page download\",\n  \"trainingModelDiskSize\": 100,\n  \"trainingModelData\": 12000,\n  \"dataType\": \"Image\",\n  \"trainingEnvironment\": \"Tensorflow\",\n  \"numGPUs\": 0,\n  \"trainingType\": \"Supervised\",\n  \"language\": \"Python\",\n  \"projectName\": \"CGMH Project\",\n  \"fundingSource\": \"ITRI\",\n  \"projectSchedule\": {\n    \"startDate\": \"2018-09-01\",\n    \"endDate\": \"2018-09-30\"\n  },\n  \"expectTime\": {\n    \"startDate\": \"2018-09-04\",\n    \"endDate\": \"2018-09-16\"\n  }\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/form",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"form"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update form",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c1fb84a7-a615-41fe-bcca-0c9589ed0998",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{form_id}}\",\n\t\"ownerUserUUID\": \"u00011\",\n    \"accessTime\": \"2018-09-25T11:33:48\",\n    \"active\": true,\n    \"resource\": \"For testing\",\n    \"modelArchitecture\": \"CNN\",\n    \"modelLayer\": 3,\n    \"os\": \"Ubuntu 16.04\",\n    \"gpuModel\": \"NVIDIA Tesla V100\",\n    \"epochTime\": \"1 day 3 hour\",\n    \"epochSize\": 0,\n    \"batchSize\": 3,\n    \"trainingModelSource\": \"The offical page download\",\n    \"trainingModelDiskSize\": 100,\n    \"trainingModelData\": 12000,\n    \"trainingEnvironment\": \"Tensorflow\",\n    \"trainingType\": \"Supervised\",\n    \"dataType\": \"Image\",\n    \"numGPUs\": 0,\n    \"language\": \"Python\",\n    \"projectName\": \"CGMH Project\",\n    \"fundingSource\": \"ITRI\",\n    \"projectSchedule\": {\n        \"startDate\": \"2018-09-01\",\n        \"endDate\": \"2018-09-30\"\n    },\n    \"expectTime\": {\n        \"startDate\": \"2018-09-04\",\n        \"endDate\": \"2018-09-16\"\n    }\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/form",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"form"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete form",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c1fb84a7-a615-41fe-bcca-0c9589ed0998",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"{{form_id}}\"\n}"
+						},
+						"url": {
+							"raw": "http://{{api_server_host}}:8080/api/v1/form",
+							"protocol": "http",
+							"host": [
+								"{{api_server_host}}"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"form"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "de4f4df9-157d-4f8b-a09a-f8dd2f0a668e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "cae7174f-a3fc-41e6-8997-b89267a762f8",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}
