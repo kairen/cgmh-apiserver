@@ -642,6 +642,7 @@ definitions:
     - name
     - phone
     - email
+    - charge
     - projectName
     - irbNumber
     - fundingSource
@@ -666,9 +667,9 @@ definitions:
         example: '2018-09-25T11:33:48.000'
         description: ISODate
       active:
-        type: integer
+        type: string
         example: 0
-        description: "0 is reject, 1 is inactive, 2 is active "
+        description: "0 is reject, 1 is inactive, 2 is active"
       reason:
         type: string
         example: 'The project need'
@@ -681,6 +682,15 @@ definitions:
       email:
         type: string
         example: user1@test.com
+      charge:
+        type: object
+        properties:
+          expect:
+            type: integer
+            example: 1500
+          actual:
+            type: integer
+            example: 1000
       projectName:
         type: string
         example: 'CGMH Project'
