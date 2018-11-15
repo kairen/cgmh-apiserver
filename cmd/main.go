@@ -9,74 +9,133 @@ import (
 	"os/signal"
 	"time"
 
+	"inwinstack/cgmh/apiserver/pkg/dao"
+	"inwinstack/cgmh/apiserver/pkg/db"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/router"
 	"inwinstack/cgmh/apiserver/pkg/util"
 
+	"github.com/gin-contrib/cors"
 	flag "github.com/spf13/pflag"
 )
 
 const (
 	readTimeout    = 10 * time.Second
 	writeTimeout   = 10 * time.Second
+	initRetryDelay = 5 * time.Second
 	maxHeaderBytes = 1 << 20
 )
 
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
+var (
+	address    string
+	origins    []string
+	enableCORS bool
+	initAdmin  bool
+	swagger    bool
+
+	// Database infos
+	dbHost   string
+	dbSource string
+	dbUser   string
+	dbPasswd string
+	dbName   string
+)
+
+func parseFlags() {
+	flag.StringVarP(&address, "listen-addr", "", ":8080", "API server listen address.")
+	flag.StringSliceVarP(&origins, "allow-origins", "", nil, "List of allowed origins for CORS, comma separated.")
+	flag.BoolVarP(&initAdmin, "init", "", true, "Init admin user.")
+	flag.BoolVarP(&swagger, "enable-swagger", "", true, "Set to enable/disable swagger API.")
+	flag.StringVarP(&dbHost, "db-host", "", "127.0.0.1:27017", "Database host address.")
+	flag.StringVarP(&dbSource, "db-source", "", "admin", "Database source name.")
+	flag.StringVarP(&dbUser, "db-user", "", "root", "Database user name.")
+	flag.StringVarP(&dbPasswd, "db-password", "", "", "Database user password.")
+	flag.StringVarP(&dbName, "db-name", "", "CGMH", "Database name.")
+	flag.Parse()
 }
 
-func initAdminUser(init bool) {
-	if init {
+func initDatabase() *db.Database {
+	log.Printf("Connecting database...")
+	f := &db.Flag{
+		Host:     dbHost,
+		Source:   dbSource,
+		User:     dbUser,
+		Password: dbPasswd,
+		DB:       dbName,
+	}
+
+	// Wait for Connecting database
+	for {
+		database, err := db.New(f)
+		if err == nil {
+			return database
+		}
+		log.Printf("Failed to connect database. %+v. retrying...", err)
+		<-time.After(initRetryDelay)
+	}
+}
+
+func initAdminUser(dao *dao.DataAccess) {
+	if initAdmin {
 		hex, err := util.RandomHex(8)
 		if err != nil {
 			log.Fatal("Server initing error:", err)
 		}
 
-		pwdStr := getenv("INIT_ADMIN_PASSWORD", hex)
-		pwd := &models.Password{Secret: util.Base64Encode(pwdStr)}
+		pwd := util.GetEnv("INIT_ADMIN_PASSWORD", hex)
+		secret := util.MD5Encode(pwd)
 		user := &models.User{
-			Email:   getenv("INIT_ADMIN_EMAIL", "admin@example.com"),
-			IsAdmin: true,
-			Active:  true,
+			Email:  util.GetEnv("INIT_ADMIN_EMAIL", "admin@inwinstack.com"),
+			Name:   "administrator",
+			Active: true,
+			Role:   models.RoleAdmin,
 		}
 
-		dao := &models.User{}
-		if !dao.IsExistByEmail(user.Email) {
+		if !dao.User.IsExistByEmail(user.Email) {
 			log.Println("Server initing admin...")
-			if err := dao.Insert(user, pwd); err != nil {
+			if err := dao.User.Register(user, secret); err != nil {
 				log.Fatal("Server initing error:", err)
 			}
 			log.Printf("Admin init email: %s", user.Email)
-			log.Printf("Admin init password: %s", pwdStr)
+			log.Printf("Admin init password: %s", pwd)
 		}
 	}
 }
 
 func main() {
-	addr := flag.StringP("listen-addr", "", ":8080", "API server listen address.")
-	init := flag.BoolP("init", "", true, "Init admin user.")
-	flag.Parse()
+	parseFlags()
+	log.SetFlags(log.LstdFlags)
 
-	r := router.NewRouter()
+	db := initDatabase()
+	dao := dao.New(db)
+	r := router.New(dao)
 	s := &http.Server{
-		Addr:           *addr,
-		Handler:        r,
+		Addr:           address,
+		Handler:        r.GetEngine(),
 		ReadTimeout:    readTimeout,
 		WriteTimeout:   writeTimeout,
 		MaxHeaderBytes: maxHeaderBytes,
 	}
 
-	log.SetFlags(log.LstdFlags)
-	log.SetPrefix("[SERVER-debug] ")
+	if origins != nil {
+		config := cors.Config{
+			AllowOrigins:     origins,
+			AllowMethods:     []string{"GET", "POST", "PUT", "HEAD"},
+			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+			ExposeHeaders:    []string{"Content-Length"},
+			AllowCredentials: false,
+			MaxAge:           12 * time.Hour,
+		}
+		r.SetCORS(config)
+	}
 
-	initAdminUser(*init)
+	// Init admin user and handlers
+	initAdminUser(dao)
+	r.InitSwaggerAPI(swagger)
+	r.InitHandlers()
+
 	go func() {
-		log.Println("Server starting...")
+		log.Println("API server starting...")
 		if err := s.ListenAndServe(); err != nil {
 			log.Printf("listen: %s\n", err)
 		}

@@ -22,3 +22,27 @@ func JSON(c *gin.Context, code int, payload interface{}, err error) {
 	}
 	c.JSON(code, resp)
 }
+
+func Success(c *gin.Context, payload interface{}) {
+	JSON(c, StatusSuccess, payload, nil)
+}
+
+func NotFound(c *gin.Context, err error) {
+	JSON(c, StatusNotFound, nil, err)
+}
+
+func InternalServerError(c *gin.Context, err error) {
+	JSON(c, StatusInternalServerError, nil, err)
+}
+
+func BadRequest(c *gin.Context, err error) {
+	JSON(c, StatusBadRequest, nil, err)
+}
+
+func Forbidden(c *gin.Context, err error) {
+	JSON(c, StatusForbidden, nil, err)
+}
+
+func Unauthorized(c *gin.Context, err error) {
+	JSON(c, StatusUnauthorized, nil, err)
+}

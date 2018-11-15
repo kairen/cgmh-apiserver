@@ -35,39 +35,3 @@ type Form struct {
 	ProjectSchedule       Date          `bson:"projectSchedule" json:"projectSchedule"`
 	ExpectTime            Date          `bson:"expectTime" json:"expectTime"`
 }
-
-func (o *Form) Insert(f *Form) error {
-	userDAO := &User{}
-	_, err := userDAO.FindByUUID(f.OwnerUserUUID)
-	if err != nil {
-		return err
-	}
-	f.ID = bson.NewObjectId()
-	f.Active = false
-	return Insert(CollectionForm, f)
-}
-
-func (o *Form) FindAll(q *Query) ([]Form, error) {
-	result := []Form{}
-	if err := FindAll(CollectionForm, q.toBSON(), nil, &result); err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (o *Form) FindByID(id string) (*Form, error) {
-	result := &Form{}
-	err := FindOne(CollectionForm, bson.M{"_id": bson.ObjectIdHex(id)}, nil, result)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (o *Form) Update(f *Form) error {
-	return Update(CollectionForm, bson.M{"_id": f.ID}, f)
-}
-
-func (o *Form) RemoveByID(id string) error {
-	return Remove(CollectionForm, bson.M{"_id": bson.ObjectIdHex(id)})
-}
