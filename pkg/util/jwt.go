@@ -1,9 +1,6 @@
 package util
 
 import (
-	"crypto/rand"
-	"encoding/base64"
-	"encoding/hex"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -13,26 +10,6 @@ type Claims struct {
 	Email string `json:"email"`
 	UUID  string `json:"uuid"`
 	jwt.StandardClaims
-}
-
-func RandomHex(n int) (string, error) {
-	bytes := make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
-}
-
-func Base64Encode(v string) string {
-	return base64.StdEncoding.EncodeToString([]byte(v))
-}
-
-func Base64Decode(v string) (string, error) {
-	decode, err := base64.StdEncoding.DecodeString(v)
-	if err != nil {
-		return string(decode), err
-	}
-	return string(decode), nil
 }
 
 func GenerateToken(email, uuid string, expTime time.Duration) (string, error) {

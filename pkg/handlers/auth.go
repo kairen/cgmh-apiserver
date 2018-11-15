@@ -3,6 +3,7 @@ package handler
 import (
 	"time"
 
+	"inwinstack/cgmh/apiserver/pkg/dao"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/util"
@@ -10,64 +11,74 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var userDAO = &models.User{}
+type AuthHandler struct {
+	dao *dao.DataAccess
+}
 
-func Login(c *gin.Context) {
-	login := struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}{}
+func (h *AuthHandler) Login(c *gin.Context) {
+	login := &models.Login{}
 	err := c.ShouldBindJSON(&login)
 	if err != nil || login.Email == "" || login.Password == "" {
-		http.JSON(c, http.StatusBadRequest, nil, http.ErrorPayloadField)
+		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
 
-	if !userDAO.VerifyAccount(login.Email, util.Base64Encode(login.Password)) {
-		http.JSON(c, http.StatusBadRequest, nil, http.ErrorUserLogin)
-		return
-	}
-
-	user, err := userDAO.FindByEmail(login.Email)
+	decode, err := util.Base64Decode(login.Password)
 	if err != nil {
-		http.JSON(c, http.StatusInternalServerError, nil, err)
+		http.BadRequest(c, http.ErrorUserLogin)
+		return
+	}
+
+	secret := util.MD5Encode(decode)
+	if !h.dao.User.VerifyAccount(login.Email, secret) {
+		http.BadRequest(c, http.ErrorUserLogin)
+		return
+	}
+
+	user, err := h.dao.User.FindByEmail(login.Email)
+	if err != nil {
+		http.InternalServerError(c, err)
 		return
 	}
 
 	if !user.Active {
-		http.JSON(c, http.StatusBadRequest, nil, http.ErrorUserNotActive)
+		http.BadRequest(c, http.ErrorUserNotActive)
 		return
 	}
 
 	token, err := util.GenerateToken(user.Email, user.UUID, 1*time.Hour)
 	if err != nil {
-		http.JSON(c, http.StatusInternalServerError, nil, err)
+		http.InternalServerError(c, err)
 		return
 	}
-	http.JSON(c, http.StatusSuccess, gin.H{"token": token, "user": user}, nil)
+	http.Success(c, gin.H{"token": token})
 }
 
-func Register(c *gin.Context) {
-	login := struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}{}
-	err := c.ShouldBindJSON(&login)
-	if err != nil || login.Email == "" || login.Password == "" {
-		http.JSON(c, http.StatusBadRequest, nil, http.ErrorPayloadField)
+func (h *AuthHandler) Register(c *gin.Context) {
+	register := &models.Register{}
+	err := c.ShouldBindJSON(&register)
+	if err != nil || register.Email == "" || register.Password == "" {
+		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
 
-	if userDAO.IsExistByEmail(login.Email) {
-		http.JSON(c, http.StatusBadRequest, nil, http.ErrorUserRegister)
+	if h.dao.User.IsExistByEmail(register.Email) {
+		http.BadRequest(c, http.ErrorUserRegister)
 		return
 	}
 
-	user := &models.User{Email: login.Email}
-	passwd := &models.Password{Secret: util.Base64Encode(login.Password)}
-	if err := userDAO.Insert(user, passwd); err != nil {
-		http.JSON(c, http.StatusInternalServerError, nil, err)
+	decode, err := util.Base64Decode(register.Password)
+	if err != nil {
+		http.BadRequest(c, http.ErrorUserLogin)
 		return
 	}
-	http.JSON(c, http.StatusSuccess, nil, nil)
+
+	user := register.ToUser()
+	user.Role = models.RoleUser
+	secret := util.MD5Encode(decode)
+	if err := h.dao.User.Register(user, secret); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, nil)
 }

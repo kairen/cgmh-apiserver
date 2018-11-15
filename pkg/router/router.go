@@ -3,51 +3,72 @@ package router
 import (
 	_ "inwinstack/cgmh/apiserver/api"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"inwinstack/cgmh/apiserver/pkg/dao"
 	"inwinstack/cgmh/apiserver/pkg/handlers"
-	"inwinstack/cgmh/apiserver/pkg/handlers/v1"
-	"inwinstack/cgmh/apiserver/pkg/middlewares/auth"
 	"inwinstack/cgmh/apiserver/pkg/middlewares/jwt"
+	"inwinstack/cgmh/apiserver/pkg/middlewares/role"
 
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
-func NewRouter() *gin.Engine {
+type Router struct {
+	engine  *gin.Engine
+	handler *handler.GlobalHandler
+}
+
+func New(dao *dao.DataAccess) *Router {
 	gin.DisableConsoleColor()
+	engine := gin.Default()
+	engine.Use(gin.Logger())
+	engine.Use(gin.Recovery())
+	return &Router{
+		engine:  engine,
+		handler: handler.New(dao),
+	}
+}
 
-	r := gin.Default()
-	r.Use(gin.Logger())
-	r.Use(gin.Recovery())
+func (r *Router) GetEngine() *gin.Engine {
+	return r.engine
+}
 
-	r.GET("/version", handler.GetVersion)
-	r.GET("/healthz", handler.GetHealthz)
-	r.POST("/auth/login", handler.Login)
-	r.POST("/auth/register", handler.Register)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+func (r *Router) SetCORS(config cors.Config) {
+	r.engine.Use(cors.New(config))
+}
 
-	apiv1 := r.Group("/api/v1")
+func (r *Router) InitSwaggerAPI(swagger bool) {
+	if swagger {
+		r.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+}
+
+func (r *Router) InitHandlers() {
+	r.engine.GET("/version", r.handler.GetVersion)
+	r.engine.GET("/healthz", r.handler.GetHealthz)
+	r.engine.POST("/auth/login", r.handler.Auth.Login)
+	r.engine.POST("/auth/register", r.handler.Auth.Register)
+
+	apiv1 := r.engine.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
 	{
-		apiv1.GET("/form/:id", v1.GetForm)
-		apiv1.POST("/form", v1.CreateForm)
+		apiv1.GET("/user/:uuid", r.handler.User.Get)
+		apiv1.GET("/form", r.handler.Form.List)
+		apiv1.GET("/form/:id", r.handler.Form.Get)
+		apiv1.POST("/form", r.handler.Form.Create)
 	}
 
-	user := apiv1.Group("")
-	user.Use(auth.UserUUIDQueryRequired())
-	{
-		user.GET("/form", v1.ListForm)
-	}
-
+	dao := r.handler.GetDAO()
+	// Require admin user
 	admin := apiv1.Group("")
-	admin.Use(auth.AdminRequired())
+	admin.Use(role.Admin(dao))
 	{
-		admin.GET("/user", v1.ListUser)
-		admin.PUT("/user", v1.UpdateUser)
-		admin.DELETE("/user", v1.DeleteUser)
-		admin.DELETE("/form", v1.DeleteForm)
-		admin.PUT("/form", v1.UpdateForm)
+		admin.GET("/user", r.handler.User.List)
+		admin.PUT("/user", r.handler.User.Update)
+		admin.DELETE("/user", r.handler.User.Delete)
+		admin.DELETE("/form", r.handler.Form.Delete)
+		admin.PUT("/form", r.handler.Form.Update)
 	}
-	return r
 }
