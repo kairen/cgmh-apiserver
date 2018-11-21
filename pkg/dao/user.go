@@ -17,26 +17,13 @@ type UserOp struct {
 	counter  *CounterOp
 }
 
-func (op *UserOp) Register(user *models.User, password string) error {
+func (op *UserOp) Insert(user *models.User) error {
 	id, err := op.counter.Increase("user-serial-id")
 	if err != nil {
 		return err
 	}
-
 	user.UUID = fmt.Sprintf("u%05d", id)
-	if err := op.db.Insert(op.collection, user); err != nil {
-		return err
-	}
-
-	pwd := &models.Password{
-		Email:    user.Email,
-		UserUUID: user.UUID,
-		Secret:   password,
-	}
-	if err := op.password.Insert(pwd); err != nil {
-		return err
-	}
-	return nil
+	return op.db.Insert(op.collection, user)
 }
 
 func (op *UserOp) IsExistByEmail(email string) bool {
@@ -67,10 +54,6 @@ func (op *UserOp) FindByUUID(uuid string) (*models.User, error) {
 		return nil, err
 	}
 	return result, nil
-}
-
-func (op *UserOp) VerifyAccount(email, password string) bool {
-	return op.password.IsExist(email, password)
 }
 
 func (op *UserOp) Update(user *models.User) error {

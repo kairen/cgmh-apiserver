@@ -41,23 +41,16 @@ paths:
         name: body
         required: true
         schema:
-          type: object
-          properties:
-            email:
-              type: string
-              example: test@test.com
-            password:
-              type: string
-              example: 123456
+          "$ref": "#/definitions/login"
       responses:
         '200':
-          description: 'Login Success'
+          description: 'Success'
           schema:
             type: object
             properties:
               message:
                 type: string
-                example: ok
+                example: 'Ok'
               code:
                 type: integer
                 example: 200
@@ -67,11 +60,10 @@ paths:
                   token:
                     type: string
                     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpb'
-                  role:
-                    type: string
-                    example: 'admin'
         '400':
-          description: 'Invalid User'
+          description: 'Invalid Email or Password'
+        '403':
+          description: 'User not activated'
         '500':
           description: 'Internal Server Error'
   "/auth/register":
@@ -91,32 +83,71 @@ paths:
           "$ref": "#/definitions/register"
       responses:
         '200':
-          description: 'Register Success'
+          description: 'Success'
           schema:
             type: object
             properties:
               message:
                 type: string
-                example: 'You have been successfully registered'
+                example: 'Ok'
               code:
                 type: integer
                 example: 200
-              data:
-                type: object
         '400':
           description: 'Invalid Payload'
         '500':
           description: 'Internal Server Error'
-  "/auth/resetpwd/{userid}":
+  "/auth/reset":
     put:
       tags:
       - Auth
       summary: 'Reset the user password'
-      security:
-        - BearerAuth: [admin]
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/reset"
       responses:
         '200':
-          description: 'Reset password success'
+          description: 'Success'
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+        '400':
+          description: 'Invalid email or old password'
+        '500':
+          description: 'Internal Server Error'
+  "/auth/forcereset":
+    put:
+      tags:
+      - Auth
+      security:
+        - BearerAuth: [Admin]
+      summary: 'Force reset the user password'
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/forcereset"
+      responses:
+        '200':
+          description: 'Success'
           schema:
             type: object
             properties:
@@ -128,8 +159,12 @@ paths:
                 example: 200
               data:
                 type: object
+                properties:
+                  password:
+                    type: string
+                    example: 'eyJlbWFpb'
         '400':
-          description: 'Invalid User'
+          description: 'Invalid email or old password'
         '500':
           description: 'Internal Server Error'
   "/api/v1/user":
@@ -138,7 +173,7 @@ paths:
       - User
       summary: 'List all users'
       security:
-        - BearerAuth: [admin]
+        - BearerAuth: [Admin]
       responses:
         '200':
           description: Success
@@ -491,6 +526,42 @@ paths:
           description: 'Internal Server Error'
 # Model Definitions
 definitions:
+  login:
+    type: object
+    required:
+    - email
+    - password
+    properties:
+      email:
+        type: string
+        example: user@test.com
+      password:
+        type: string
+        example: p@ssw0rd
+  reset:
+    type: object
+    required:
+    - email
+    - oldPassword
+    - newPassword
+    properties:
+      email:
+        type: string
+        example: user@test.com
+      oldPassword:
+        type: string
+        example: p@ssw0rd
+      newPassword:
+        type: string
+        example: 0penst@ck
+  forcereset:
+    type: object
+    required:
+    - email
+    properties:
+      email:
+        type: string
+        example: user@test.com
   register:
     type: object
     required:
@@ -517,7 +588,7 @@ definitions:
       unit:
        type: string
        example: AI team
-      position:
+      jobTitle:
        type: string
        example: enginner
       phone:
@@ -542,7 +613,7 @@ definitions:
       unit:
        type: string
        example: AI team
-      position:
+      jobTitle:
        type: string
        example: enginner
       phone:
@@ -554,9 +625,9 @@ definitions:
       point:
         type: integer
         example: 5000
-      isAdmin:
-        type: bool
-        example: false
+      role:
+        type: string
+        example: Admin
       active:
         type: bool
         example: true

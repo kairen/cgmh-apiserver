@@ -39,17 +39,28 @@ func (r *Router) SetCORS(config cors.Config) {
 	r.engine.Use(cors.New(config))
 }
 
-func (r *Router) InitSwaggerAPI(swagger bool) {
+func (r *Router) LinkSwaggerAPI(swagger bool) {
 	if swagger {
 		r.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 }
 
-func (r *Router) InitHandlers() {
+func (r *Router) LinkHandlers() {
+	dao := r.handler.GetDAO()
+
 	r.engine.GET("/version", r.handler.GetVersion)
 	r.engine.GET("/healthz", r.handler.GetHealthz)
 	r.engine.POST("/auth/login", r.handler.Auth.Login)
 	r.engine.POST("/auth/register", r.handler.Auth.Register)
+	r.engine.PUT("/auth/reset", r.handler.Auth.Reset)
+
+	// Require admin user for common API
+	admin := r.engine.Group("")
+	admin.Use(jwt.JWT())
+	admin.Use(role.Admin(dao))
+	{
+		admin.PUT("/auth/forcereset", r.handler.Auth.ForceReset)
+	}
 
 	apiv1 := r.engine.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
@@ -60,15 +71,14 @@ func (r *Router) InitHandlers() {
 		apiv1.POST("/form", r.handler.Form.Create)
 	}
 
-	dao := r.handler.GetDAO()
-	// Require admin user
-	admin := apiv1.Group("")
-	admin.Use(role.Admin(dao))
+	// Require admin user for V1 API
+	adminv1 := apiv1.Group("")
+	adminv1.Use(role.Admin(dao))
 	{
-		admin.GET("/user", r.handler.User.List)
-		admin.PUT("/user", r.handler.User.Update)
-		admin.DELETE("/user", r.handler.User.Delete)
-		admin.DELETE("/form", r.handler.Form.Delete)
-		admin.PUT("/form", r.handler.Form.Update)
+		adminv1.GET("/user", r.handler.User.List)
+		adminv1.PUT("/user", r.handler.User.Update)
+		adminv1.DELETE("/user", r.handler.User.Delete)
+		adminv1.DELETE("/form", r.handler.Form.Delete)
+		adminv1.PUT("/form", r.handler.Form.Update)
 	}
 }

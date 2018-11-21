@@ -20,6 +20,10 @@ func (op *PasswordOp) IsExist(email, passwd string) bool {
 	return op.db.IsExist(op.collection, bson.M{"email": email, "secret": passwd})
 }
 
+func (op *PasswordOp) UpdateByEmail(pwd *models.Password) error {
+	return op.db.Update(op.collection, bson.M{"email": pwd.Email}, pwd)
+}
+
 func (op *PasswordOp) Remove(uuid string) error {
 	return op.db.Remove(op.collection, bson.M{"userUUID": uuid})
 }

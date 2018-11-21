@@ -93,7 +93,7 @@ func initAdminUser(dao *dao.DataAccess) {
 
 		if !dao.User.IsExistByEmail(user.Email) {
 			log.Println("Server initing admin...")
-			if err := dao.User.Register(user, secret); err != nil {
+			if err := dao.Auth.Register(user, secret); err != nil {
 				log.Fatal("Server initing error:", err)
 			}
 			log.Printf("Admin init email: %s", user.Email)
@@ -131,8 +131,8 @@ func main() {
 
 	// Init admin user and handlers
 	initAdminUser(dao)
-	r.InitSwaggerAPI(swagger)
-	r.InitHandlers()
+	r.LinkSwaggerAPI(swagger)
+	r.LinkHandlers()
 
 	go func() {
 		log.Println("API server starting...")
