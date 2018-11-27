@@ -15,6 +15,6 @@ var (
 	ErrorUserEmailInvalid = errors.New("Invalid email address or format")
 	ErrorUserResetError   = errors.New("Email or password is incorrect")
 	ErrorUserNotActive    = errors.New("User not activated")
-	ErrorUserPermission   = errors.New("The user might not have the necessary permissions for a resource")
+	ErrorUserPermission   = errors.New("The user might not have the necessary permissions")
 	ErrorFormActived      = errors.New("This form has been activated, you can't update it")
 )

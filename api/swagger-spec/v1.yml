@@ -198,8 +198,6 @@ paths:
       tags:
       - User
       summary: 'Update user'
-      security:
-        - BearerAuth: [admin]
       parameters:
       - name: data
         in: body
@@ -254,6 +252,73 @@ paths:
                 type: object
         '400':
           description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/user/{uuid}":
+    get:
+      tags:
+      - User
+      summary: Get user by uuid
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                "$ref": "#/definitions/user"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/userstatus":
+    put:
+      tags:
+      - User
+      summary: 'Set user status(active/block)'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/user_status"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/userrole":
+    put:
+      tags:
+      - User
+      summary: 'Update user role'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/user_role"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
         '401':
           description: 'Unauthorized'
         '500':
@@ -600,6 +665,7 @@ definitions:
       uuid:
         type: string
         format: uuid
+        example: u00001
         description: auto genearate by server
       email:
         type: string
@@ -631,6 +697,42 @@ definitions:
       active:
         type: bool
         example: true
+  password:
+    type: object
+    properties:
+      userUUID:
+        type: string
+        format: uuid
+        example: u00001
+        description: Auto genearate by server
+      secret:
+        type: string
+        example: cbf41347bb1978f6f32087b2cf01e351
+  user_status:
+    type: object
+    properties:
+      userUUID:
+        type: string
+        format: uuid
+        example: u00001
+        description: Auto genearate by server
+      active:
+        type: bool
+        example: true
+      block:
+        type: bool
+        example: false
+  user_role:
+    type: object
+    properties:
+      userUUID:
+        type: string
+        format: uuid
+        example: u00001
+        description: Auto genearate by server
+      name:
+        type: string
+        example: Admin
   level:
     type: object
     required:

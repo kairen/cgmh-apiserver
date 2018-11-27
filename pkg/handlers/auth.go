@@ -123,6 +123,11 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 }
 
 func (h *AuthHandler) ForceReset(c *gin.Context) {
+	if !isAdmin(c, h.dao) {
+		http.Forbidden(c, http.ErrorUserPermission)
+		return
+	}
+
 	reset := &models.ForceReset{}
 	err := c.ShouldBindJSON(&reset)
 	if err != nil || reset.Email == "" {

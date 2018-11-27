@@ -5,10 +5,12 @@ import (
 )
 
 const (
-	CollectionCounter  = "counter"
-	CollectionUser     = "user"
-	CollectionPassword = "password"
-	CollectionForm     = "form"
+	CollectionCounter    = "Counter"
+	CollectionUser       = "User"
+	CollectionUserRole   = "UserRole"
+	CollectionUserStatus = "UserStatus"
+	CollectionPassword   = "Password"
+	CollectionForm       = "Form"
 )
 
 type DataAccess struct {
@@ -22,11 +24,19 @@ type DataAccess struct {
 
 func New(db *db.Database) *DataAccess {
 	da := &DataAccess{db: db}
-
 	// Init data access objects
 	counter := &CounterOp{db: db, collection: CollectionCounter}
 	pwd := &PasswordOp{db: db, collection: CollectionPassword}
-	user := &UserOp{db: db, password: pwd, counter: counter, collection: CollectionUser}
+	userRole := &UserRoleOp{db: db, collection: CollectionUserRole}
+	userStatus := &UserStatusOp{db: db, collection: CollectionUserStatus}
+	user := &UserOp{
+		db:         db,
+		role:       userRole,
+		status:     userStatus,
+		password:   pwd,
+		counter:    counter,
+		collection: CollectionUser,
+	}
 	auth := &AuthOp{db: db, user: user}
 	form := &FormOp{db: db, user: user, collection: CollectionForm}
 

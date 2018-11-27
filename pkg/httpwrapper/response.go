@@ -27,6 +27,10 @@ func Success(c *gin.Context, payload interface{}) {
 	JSON(c, StatusSuccess, payload, nil)
 }
 
+func SuccessString(c *gin.Context, v string) {
+	c.String(StatusSuccess, v)
+}
+
 func NotFound(c *gin.Context, err error) {
 	JSON(c, StatusNotFound, nil, err)
 }

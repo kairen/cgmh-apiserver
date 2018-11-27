@@ -84,19 +84,33 @@ func initAdminUser(dao *dao.DataAccess) {
 
 		pwd := util.GetEnv("INIT_ADMIN_PASSWORD", hex)
 		secret := util.MD5Encode(pwd)
-		user := &models.User{
-			Email:  util.GetEnv("INIT_ADMIN_EMAIL", "admin@inwinstack.com"),
-			Name:   "administrator",
-			Active: true,
-			Role:   models.RoleAdmin,
+		reg := &models.User{
+			Email: util.GetEnv("INIT_ADMIN_EMAIL", "admin@inwinstack.com"),
+			Name:  "administrator",
 		}
 
-		if !dao.User.IsExistByEmail(user.Email) {
+		if !dao.User.IsExistByEmail(reg.Email) {
 			log.Println("Server initing admin...")
-			if err := dao.Auth.Register(user, secret); err != nil {
+			if err := dao.Auth.Register(reg, secret); err != nil {
 				log.Fatal("Server initing error:", err)
 			}
-			log.Printf("Admin init email: %s", user.Email)
+
+			user, err := dao.User.FindByEmail(reg.Email)
+			if err != nil {
+				log.Fatal("Server initing error:", err)
+			}
+
+			stat := &models.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
+			if err := dao.User.UpdateStatus(stat); err != nil {
+				log.Fatal("Server initing error:", err)
+			}
+
+			role := &models.UserRole{UserUUID: user.UUID, Name: models.RoleAdmin}
+			if err := dao.User.UpdateRole(role); err != nil {
+				log.Fatal("Server initing error:", err)
+			}
+
+			log.Printf("Admin init email: %s", reg.Email)
 			log.Printf("Admin init password: %s", pwd)
 		}
 	}
