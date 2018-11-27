@@ -1,19 +1,19 @@
 package handler
 
 import (
-	"inwinstack/cgmh/apiserver/pkg/dao"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
+	"inwinstack/cgmh/apiserver/pkg/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type FormHandler struct {
-	dao *dao.DataAccess
+	svc *service.DataAccess
 }
 
 func (h *FormHandler) Get(c *gin.Context) {
-	form, err := h.dao.Form.FindByID(c.Param("id"))
+	form, err := h.svc.Form.FindByID(c.Param("id"))
 	if err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -29,7 +29,7 @@ func (h *FormHandler) List(c *gin.Context) {
 		return
 	}
 
-	forms, err := h.dao.Form.FindAll(query)
+	forms, err := h.svc.Form.FindAll(query)
 	if err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -44,7 +44,7 @@ func (h *FormHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.dao.Form.Insert(form); err != nil {
+	if err := h.svc.Form.Insert(form); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -58,7 +58,7 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.dao.Form.Update(form); err != nil {
+	if err := h.svc.Form.Update(form); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -75,7 +75,7 @@ func (h *FormHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.dao.Form.RemoveByID(form.ID); err != nil {
+	if err := h.svc.Form.RemoveByID(form.ID); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}

@@ -9,10 +9,10 @@ import (
 	"os/signal"
 	"time"
 
-	"inwinstack/cgmh/apiserver/pkg/dao"
 	"inwinstack/cgmh/apiserver/pkg/db"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/router"
+	"inwinstack/cgmh/apiserver/pkg/services"
 	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-contrib/cors"
@@ -75,7 +75,7 @@ func initDatabase() *db.Database {
 	}
 }
 
-func initAdminUser(dao *dao.DataAccess) {
+func initAdminUser(svc *service.DataAccess) {
 	if initAdmin {
 		hex, err := util.RandomHex(8)
 		if err != nil {
@@ -89,23 +89,23 @@ func initAdminUser(dao *dao.DataAccess) {
 			Name:  "administrator",
 		}
 
-		if !dao.User.IsExistByEmail(reg.Email) {
+		if !svc.User.IsExistByEmail(reg.Email) {
 			log.Println("Server initing admin...")
-			if err := dao.Auth.Register(reg, secret); err != nil {
+			if err := svc.Auth.Register(reg, secret); err != nil {
 				log.Fatal("Server initing error:", err)
 			}
 
-			user, err := dao.User.FindByEmail(reg.Email)
+			user, err := svc.User.FindByEmail(reg.Email)
 			if err != nil {
 				log.Fatal("Server initing error:", err)
 			}
 			stat := &models.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
-			if err := dao.User.UpdateStatus(stat); err != nil {
+			if err := svc.User.UpdateStatus(stat); err != nil {
 				log.Fatal("Server initing error:", err)
 			}
 
 			role := &models.UserRole{UserUUID: user.UUID, Name: models.RoleAdmin}
-			if err := dao.User.UpdateRole(role); err != nil {
+			if err := svc.User.UpdateRole(role); err != nil {
 				log.Fatal("Server initing error:", err)
 			}
 
@@ -120,8 +120,8 @@ func main() {
 	log.SetFlags(log.LstdFlags)
 
 	db := initDatabase()
-	dao := dao.New(db)
-	r := router.New(dao)
+	svc := service.New(db)
+	r := router.New(svc)
 	s := &http.Server{
 		Addr:           address,
 		Handler:        r.GetEngine(),
@@ -143,7 +143,7 @@ func main() {
 	}
 
 	// Init admin user and handlers
-	initAdminUser(dao)
+	initAdminUser(svc)
 	r.LinkSwaggerAPI(swagger)
 	r.LinkHandlers()
 

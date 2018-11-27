@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"inwinstack/cgmh/apiserver/pkg/dao"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
+	"inwinstack/cgmh/apiserver/pkg/services"
 	"inwinstack/cgmh/apiserver/pkg/util"
 	"inwinstack/cgmh/apiserver/pkg/version"
 
@@ -11,7 +11,7 @@ import (
 )
 
 type GlobalHandler struct {
-	dao *dao.DataAccess
+	svc *service.DataAccess
 
 	// Sub handlers
 	Auth  *AuthHandler
@@ -20,12 +20,12 @@ type GlobalHandler struct {
 	Form  *FormHandler
 }
 
-func New(dao *dao.DataAccess) *GlobalHandler {
-	h := &GlobalHandler{dao: dao}
-	h.Auth = &AuthHandler{dao: dao}
-	h.User = &UserHandler{dao: dao}
-	h.Level = &LevelHandler{dao: dao}
-	h.Form = &FormHandler{dao: dao}
+func New(svc *service.DataAccess) *GlobalHandler {
+	h := &GlobalHandler{svc: svc}
+	h.Auth = &AuthHandler{svc: svc}
+	h.User = &UserHandler{svc: svc}
+	h.Level = &LevelHandler{svc: svc}
+	h.Form = &FormHandler{svc: svc}
 	return h
 }
 
@@ -39,11 +39,11 @@ func (h *GlobalHandler) GetHealthz(c *gin.Context) {
 	c.String(http.StatusSuccess, "ok")
 }
 
-func (h *GlobalHandler) GetDAO() *dao.DataAccess {
-	return h.dao
+func (h *GlobalHandler) GetService() *service.DataAccess {
+	return h.svc
 }
 
-func getUserUUIDByJWT(c *gin.Context, dao *dao.DataAccess) (string, error) {
+func getUserUUIDByJWT(c *gin.Context) (string, error) {
 	token := c.Request.Header.Get("Authorization")
 	claims, err := util.ParseToken(token)
 	if err != nil {
@@ -57,21 +57,21 @@ func getUserUUIDByJWT(c *gin.Context, dao *dao.DataAccess) (string, error) {
 	return uuid, nil
 }
 
-func getUserByJWT(c *gin.Context, dao *dao.DataAccess) (*models.User, error) {
-	uuid, err := getUserUUIDByJWT(c, dao)
+func getUserByJWT(c *gin.Context, svc *service.DataAccess) (*models.User, error) {
+	uuid, err := getUserUUIDByJWT(c)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := dao.User.FindByUUID(uuid)
+	user, err := svc.User.FindByUUID(uuid)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func isAdmin(c *gin.Context, dao *dao.DataAccess) bool {
-	jwtUser, err := getUserByJWT(c, dao)
+func isAdmin(c *gin.Context, svc *service.DataAccess) bool {
+	jwtUser, err := getUserByJWT(c, svc)
 	if err != nil {
 		return false
 	}

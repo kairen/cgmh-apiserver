@@ -3,16 +3,16 @@ package handler
 import (
 	"time"
 
-	"inwinstack/cgmh/apiserver/pkg/dao"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
+	"inwinstack/cgmh/apiserver/pkg/services"
 	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	dao *dao.DataAccess
+	svc *service.DataAccess
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -30,12 +30,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	secret := util.MD5Encode(decode)
-	if !h.dao.Auth.VerifyAccount(login.Email, secret) {
+	if !h.svc.Auth.VerifyAccount(login.Email, secret) {
 		http.BadRequest(c, http.ErrorUserLogin)
 		return
 	}
 
-	user, err := h.dao.User.FindByEmail(login.Email)
+	user, err := h.svc.User.FindByEmail(login.Email)
 	if err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -67,7 +67,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	if h.dao.User.IsExistByEmail(register.Email) {
+	if h.svc.User.IsExistByEmail(register.Email) {
 		http.BadRequest(c, http.ErrorUserRegister)
 		return
 	}
@@ -81,7 +81,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	user := register.ToUser()
 	user.Role = models.RoleUser
 	secret := util.MD5Encode(decode)
-	if err := h.dao.Auth.Register(user, secret); err != nil {
+	if err := h.svc.Auth.Register(user, secret); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -103,7 +103,7 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 	}
 
 	oldSecret := util.MD5Encode(oldBase)
-	if !h.dao.Auth.VerifyAccount(reset.Email, oldSecret) {
+	if !h.svc.Auth.VerifyAccount(reset.Email, oldSecret) {
 		http.BadRequest(c, http.ErrorUserResetError)
 		return
 	}
@@ -115,7 +115,7 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 	}
 
 	secret := util.MD5Encode(newBase)
-	if err := h.dao.Auth.Reset(reset.Email, secret); err != nil {
+	if err := h.svc.Auth.Reset(reset.Email, secret); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -123,7 +123,7 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 }
 
 func (h *AuthHandler) ForceReset(c *gin.Context) {
-	if !isAdmin(c, h.dao) {
+	if !isAdmin(c, h.svc) {
 		http.Forbidden(c, http.ErrorUserPermission)
 		return
 	}
@@ -135,7 +135,7 @@ func (h *AuthHandler) ForceReset(c *gin.Context) {
 		return
 	}
 
-	if !h.dao.User.IsExistByEmail(reset.Email) {
+	if !h.svc.User.IsExistByEmail(reset.Email) {
 		http.BadRequest(c, http.ErrorUserNotFound)
 		return
 	}
@@ -148,7 +148,7 @@ func (h *AuthHandler) ForceReset(c *gin.Context) {
 
 	encode := util.Base64Encode(hex)
 	secret := util.MD5Encode(hex)
-	if err := h.dao.Auth.Reset(reset.Email, secret); err != nil {
+	if err := h.svc.Auth.Reset(reset.Email, secret); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}

@@ -6,9 +6,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"inwinstack/cgmh/apiserver/pkg/dao"
 	"inwinstack/cgmh/apiserver/pkg/handlers"
 	"inwinstack/cgmh/apiserver/pkg/middlewares/jwt"
+	"inwinstack/cgmh/apiserver/pkg/services"
 
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -19,14 +19,14 @@ type Router struct {
 	handler *handler.GlobalHandler
 }
 
-func New(dao *dao.DataAccess) *Router {
+func New(svc *service.DataAccess) *Router {
 	gin.DisableConsoleColor()
 	engine := gin.Default()
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
 	return &Router{
 		engine:  engine,
-		handler: handler.New(dao),
+		handler: handler.New(svc),
 	}
 }
 

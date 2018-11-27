@@ -1,24 +1,24 @@
 package handler
 
 import (
-	"inwinstack/cgmh/apiserver/pkg/dao"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
+	service "inwinstack/cgmh/apiserver/pkg/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type LevelHandler struct {
-	dao *dao.DataAccess
+	svc *service.DataAccess
 }
 
 func (h *LevelHandler) List(c *gin.Context) {
-	if !isAdmin(c, h.dao) {
+	if !isAdmin(c, h.svc) {
 		http.Forbidden(c, http.ErrorUserPermission)
 		return
 	}
 
-	levels, err := h.dao.Level.FindAll()
+	levels, err := h.svc.Level.FindAll()
 	if err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -27,7 +27,7 @@ func (h *LevelHandler) List(c *gin.Context) {
 }
 
 func (h *LevelHandler) Create(c *gin.Context) {
-	if !isAdmin(c, h.dao) {
+	if !isAdmin(c, h.svc) {
 		http.Forbidden(c, http.ErrorUserPermission)
 		return
 	}
@@ -38,12 +38,12 @@ func (h *LevelHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if h.dao.Level.IsExistByName(level.Name) {
+	if h.svc.Level.IsExistByName(level.Name) {
 		http.BadRequest(c, http.ErrorResourceExist)
 		return
 	}
 
-	if err := h.dao.Level.Insert(level); err != nil {
+	if err := h.svc.Level.Insert(level); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -51,7 +51,7 @@ func (h *LevelHandler) Create(c *gin.Context) {
 }
 
 func (h *LevelHandler) Update(c *gin.Context) {
-	if !isAdmin(c, h.dao) {
+	if !isAdmin(c, h.svc) {
 		http.Forbidden(c, http.ErrorUserPermission)
 		return
 	}
@@ -62,12 +62,12 @@ func (h *LevelHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if h.dao.Level.IsExistByName(level.Name) {
+	if h.svc.Level.IsExistByName(level.Name) {
 		http.BadRequest(c, http.ErrorResourceExist)
 		return
 	}
 
-	if err := h.dao.Level.Update(level); err != nil {
+	if err := h.svc.Level.Update(level); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -75,7 +75,7 @@ func (h *LevelHandler) Update(c *gin.Context) {
 }
 
 func (h *LevelHandler) Delete(c *gin.Context) {
-	if !isAdmin(c, h.dao) {
+	if !isAdmin(c, h.svc) {
 		http.Forbidden(c, http.ErrorUserPermission)
 		return
 	}
@@ -88,7 +88,7 @@ func (h *LevelHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.dao.Level.Remove(obj.ID); err != nil {
+	if err := h.svc.Level.Remove(obj.ID); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
