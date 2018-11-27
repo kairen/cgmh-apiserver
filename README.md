@@ -1,5 +1,5 @@
 # CGMH API server
-The CHMH API server services REST operations. This server also validates and configures data for the API objects which include user, forms and others.
+The CGMH API server services REST operations. This server also validates and configures data for the API objects which include user, forms and others.
 
 ## Building from Source
 Clone repo into your go path under $GOPATH/src:
