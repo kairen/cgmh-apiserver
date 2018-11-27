@@ -16,12 +16,12 @@ func (op *PasswordOp) Insert(pwd *models.Password) error {
 	return op.db.Insert(op.collection, pwd)
 }
 
-func (op *PasswordOp) IsExist(email, passwd string) bool {
-	return op.db.IsExist(op.collection, bson.M{"email": email, "secret": passwd})
+func (op *PasswordOp) IsExist(uuid, passwd string) bool {
+	return op.db.IsExist(op.collection, bson.M{"userUUID": uuid, "secret": passwd})
 }
 
 func (op *PasswordOp) UpdateByEmail(pwd *models.Password) error {
-	return op.db.Update(op.collection, bson.M{"email": pwd.Email}, pwd)
+	return op.db.Update(op.collection, bson.M{"userUUID": pwd.UserUUID}, pwd)
 }
 
 func (op *PasswordOp) Remove(uuid string) error {

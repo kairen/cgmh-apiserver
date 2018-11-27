@@ -16,7 +16,6 @@ func (op *AuthOp) Register(user *models.User, password string) error {
 		return err
 	}
 	pwd := &models.Password{
-		Email:    user.Email,
 		UserUUID: user.UUID,
 		Secret:   password,
 	}
@@ -27,13 +26,22 @@ func (op *AuthOp) Register(user *models.User, password string) error {
 }
 
 func (op *AuthOp) VerifyAccount(email, password string) bool {
-	return op.user.password.IsExist(email, password)
+	user, err := op.user.FindByEmail(email)
+	if err != nil {
+		return false
+	}
+	return op.user.password.IsExist(user.UUID, password)
 }
 
 func (op *AuthOp) Reset(email, password string) error {
+	user, err := op.user.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+
 	pwd := &models.Password{
-		Email:  email,
-		Secret: password,
+		UserUUID: user.UUID,
+		Secret:   password,
 	}
 	return op.user.password.UpdateByEmail(pwd)
 }

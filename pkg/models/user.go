@@ -26,6 +26,5 @@ func (u *User) IsAdmin() bool {
 
 type Password struct {
 	UserUUID string `bson:"userUUID" json:"userUUID"`
-	Email    string `bson:"email" json:"email"`
 	Secret   string `bson:"secret" json:"secret"`
 }
