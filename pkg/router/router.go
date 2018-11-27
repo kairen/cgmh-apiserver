@@ -62,6 +62,7 @@ func (r *Router) LinkHandlers() {
 		apiv1.DELETE("/user", r.handler.User.Delete)
 		apiv1.PUT("/userrole", r.handler.User.UpdateRole)
 		apiv1.PUT("/userstatus", r.handler.User.UpdateStatus)
+		apiv1.PUT("/userlevel", r.handler.User.UpdateLevel)
 
 		apiv1.GET("/form", r.handler.Form.List)
 		apiv1.GET("/form/:id", r.handler.Form.Get)

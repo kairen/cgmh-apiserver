@@ -15,6 +15,7 @@ type UserOp struct {
 	// Refers objects
 	role     *UserRoleOp
 	status   *UserStatusOp
+	level    *UserLevelOp
 	password *UserPasswordOp
 	counter  *CounterOp
 }
@@ -39,10 +40,15 @@ func (op *UserOp) Insert(user *models.User) error {
 	if err := op.role.Insert(role); err != nil {
 		return err
 	}
+
+	level := &models.UserLevel{UserUUID: user.UUID, Name: models.LevelNone}
+	if err := op.level.Insert(level); err != nil {
+		return err
+	}
 	return nil
 }
 
-func (op *UserOp) getRoleAndStatus(user *models.User) error {
+func (op *UserOp) getRelationalObjects(user *models.User) error {
 	role, err := op.role.FindOne(user.UUID)
 	if err != nil {
 		return err
@@ -55,6 +61,12 @@ func (op *UserOp) getRoleAndStatus(user *models.User) error {
 	}
 	user.Active = stat.Active
 	user.Block = stat.Block
+
+	level, err := op.level.FindOne(user.UUID)
+	if err != nil {
+		return err
+	}
+	user.Level = level.Name
 	return nil
 }
 
@@ -69,7 +81,7 @@ func (op *UserOp) FindAll() ([]models.User, error) {
 	}
 
 	for index := range result {
-		if err := op.getRoleAndStatus(&result[index]); err != nil {
+		if err := op.getRelationalObjects(&result[index]); err != nil {
 			return nil, err
 		}
 	}
@@ -83,7 +95,7 @@ func (op *UserOp) FindByEmail(email string) (*models.User, error) {
 		return nil, err
 	}
 
-	if err := op.getRoleAndStatus(result); err != nil {
+	if err := op.getRelationalObjects(result); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -96,7 +108,7 @@ func (op *UserOp) FindByUUID(uuid string) (*models.User, error) {
 		return nil, err
 	}
 
-	if err := op.getRoleAndStatus(result); err != nil {
+	if err := op.getRelationalObjects(result); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -106,7 +118,7 @@ func (op *UserOp) Update(user *models.User) error {
 	if err := op.db.Update(op.collection, bson.M{"uuid": user.UUID}, user); err != nil {
 		return err
 	}
-	return op.getRoleAndStatus(user)
+	return op.getRelationalObjects(user)
 }
 
 func (op *UserOp) UpdateRole(role *models.UserRole) error {
@@ -115,6 +127,10 @@ func (op *UserOp) UpdateRole(role *models.UserRole) error {
 
 func (op *UserOp) UpdateStatus(stat *models.UserStatus) error {
 	return op.status.Update(stat)
+}
+
+func (op *UserOp) UpdateLevel(level *models.UserLevel) error {
+	return op.level.Update(level)
 }
 
 func (op *UserOp) RemoveByUUID(uuid string) error {

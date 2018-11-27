@@ -10,6 +10,7 @@ const (
 	CollectionUserRole     = "UserRole"
 	CollectionUserStatus   = "UserStatus"
 	CollectionUserPassword = "UserPassword"
+	CollectionUserLevel    = "UserLevel"
 	CollectionLevel        = "Level"
 	CollectionForm         = "Form"
 )
@@ -28,15 +29,17 @@ func New(db *db.Database) *DataAccess {
 	da := &DataAccess{db: db}
 	// Init data access objects
 	counter := &CounterOp{db: db, collection: CollectionCounter}
-	pwd := &UserPasswordOp{db: db, collection: CollectionUserPassword}
+	userPassword := &UserPasswordOp{db: db, collection: CollectionUserPassword}
 	level := &LevelOp{db: db, collection: CollectionLevel}
 	userRole := &UserRoleOp{db: db, collection: CollectionUserRole}
 	userStatus := &UserStatusOp{db: db, collection: CollectionUserStatus}
+	userLevel := &UserLevelOp{db: db, collection: CollectionUserLevel}
 	user := &UserOp{
 		db:         db,
 		role:       userRole,
 		status:     userStatus,
-		password:   pwd,
+		level:      userLevel,
+		password:   userPassword,
 		counter:    counter,
 		collection: CollectionUser,
 	}

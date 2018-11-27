@@ -99,7 +99,6 @@ func initAdminUser(dao *dao.DataAccess) {
 			if err != nil {
 				log.Fatal("Server initing error:", err)
 			}
-
 			stat := &models.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
 			if err := dao.User.UpdateStatus(stat); err != nil {
 				log.Fatal("Server initing error:", err)

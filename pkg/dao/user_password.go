@@ -12,7 +12,7 @@ type UserPasswordOp struct {
 	collection string
 }
 
-func (op *UserPasswordOp) Insert(pwd *models.Password) error {
+func (op *UserPasswordOp) Insert(pwd *models.UserPassword) error {
 	return op.db.Insert(op.collection, pwd)
 }
 
@@ -20,7 +20,7 @@ func (op *UserPasswordOp) IsExist(uuid, passwd string) bool {
 	return op.db.IsExist(op.collection, bson.M{"userUUID": uuid, "secret": passwd})
 }
 
-func (op *UserPasswordOp) Update(pwd *models.Password) error {
+func (op *UserPasswordOp) Update(pwd *models.UserPassword) error {
 	return op.db.Update(op.collection, bson.M{"userUUID": pwd.UserUUID}, pwd)
 }
 

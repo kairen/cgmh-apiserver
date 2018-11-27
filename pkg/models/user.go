@@ -43,7 +43,14 @@ type UserStatus struct {
 	Block    bool   `bson:"block" json:"block" binding:"required"`
 }
 
-type Password struct {
+type UserLevel struct {
+	UserUUID string `bson:"userUUID" json:"userUUID" binding:"required"`
+	Name     string `bson:"name" json:"name" binding:"required"`
+}
+
+const LevelNone = "None"
+
+type UserPassword struct {
 	UserUUID string `bson:"userUUID" json:"userUUID"`
 	Secret   string `bson:"secret" json:"secret"`
 }

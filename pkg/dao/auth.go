@@ -16,7 +16,7 @@ func (op *AuthOp) Register(user *models.User, password string) error {
 		return err
 	}
 
-	pwd := &models.Password{UserUUID: user.UUID, Secret: password}
+	pwd := &models.UserPassword{UserUUID: user.UUID, Secret: password}
 	if err := op.user.password.Insert(pwd); err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (op *AuthOp) Reset(email, password string) error {
 		return err
 	}
 
-	pwd := &models.Password{
+	pwd := &models.UserPassword{
 		UserUUID: user.UUID,
 		Secret:   password,
 	}

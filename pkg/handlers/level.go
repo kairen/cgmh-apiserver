@@ -62,6 +62,11 @@ func (h *LevelHandler) Update(c *gin.Context) {
 		return
 	}
 
+	if h.dao.Level.IsExistByName(level.Name) {
+		http.BadRequest(c, http.ErrorResourceExist)
+		return
+	}
+
 	if err := h.dao.Level.Update(level); err != nil {
 		http.InternalServerError(c, err)
 		return

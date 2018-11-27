@@ -50,8 +50,7 @@ func (h *UserHandler) List(c *gin.Context) {
 
 func (h *UserHandler) Update(c *gin.Context) {
 	user := &models.User{}
-	err := c.ShouldBindJSON(&user)
-	if err != nil || user.UUID == "" {
+	if err := c.ShouldBindJSON(&user); err != nil || user.UUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -82,16 +81,15 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	user := &struct {
+	obj := &struct {
 		UUID string `json:"uuid" binding:"required"`
 	}{}
-	err := c.ShouldBindJSON(&user)
-	if err != nil || user.UUID == "" {
+	if err := c.ShouldBindJSON(&obj); err != nil || obj.UUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
 
-	if err := h.dao.User.RemoveByUUID(user.UUID); err != nil {
+	if err := h.dao.User.RemoveByUUID(obj.UUID); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -105,8 +103,7 @@ func (h *UserHandler) UpdateRole(c *gin.Context) {
 	}
 
 	role := &models.UserRole{}
-	err := c.ShouldBindJSON(&role)
-	if err != nil || role.UserUUID == "" {
+	if err := c.ShouldBindJSON(&role); err != nil || role.UserUUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -125,8 +122,7 @@ func (h *UserHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	stat := &models.UserStatus{}
-	err := c.ShouldBindJSON(&stat)
-	if err != nil || stat.UserUUID == "" {
+	if err := c.ShouldBindJSON(&stat); err != nil || stat.UserUUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -136,5 +132,28 @@ func (h *UserHandler) UpdateStatus(c *gin.Context) {
 		return
 	}
 	http.Success(c, stat)
+}
 
+func (h *UserHandler) UpdateLevel(c *gin.Context) {
+	if !isAdmin(c, h.dao) {
+		http.Forbidden(c, http.ErrorUserPermission)
+		return
+	}
+
+	level := &models.UserLevel{}
+	if err := c.ShouldBindJSON(&level); err != nil || level.UserUUID == "" {
+		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	if !h.dao.Level.IsExistByName(level.Name) {
+		http.BadRequest(c, http.ErrorResourceNotFound)
+		return
+	}
+
+	if err := h.dao.User.UpdateLevel(level); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, level)
 }

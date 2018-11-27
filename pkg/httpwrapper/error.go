@@ -18,4 +18,5 @@ var (
 	ErrorUserPermission   = errors.New("The user might not have the necessary permissions")
 	ErrorFormActived      = errors.New("This form has been activated, you can't update it")
 	ErrorResourceExist    = errors.New("The resource already exists")
+	ErrorResourceNotFound = errors.New("The resource not found")
 )
