@@ -8,11 +8,11 @@ import (
 )
 
 type CounterService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 }
 
-func newCounterService(db *db.Database) *CounterService {
+func newCounterService(db *db.Mongo) *CounterService {
 	return &CounterService{db: db, collection: CollectionCounter}
 }
 

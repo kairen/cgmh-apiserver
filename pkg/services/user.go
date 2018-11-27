@@ -9,7 +9,7 @@ import (
 )
 
 type UserService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 
 	// Refers objects
@@ -20,7 +20,7 @@ type UserService struct {
 	counter  *CounterService
 }
 
-func newUserService(db *db.Database) *UserService {
+func newUserService(db *db.Mongo) *UserService {
 	user := &UserService{db: db, collection: CollectionUser}
 	user.counter = newCounterService(db)
 	user.password = newUserPasswordService(db)

@@ -8,11 +8,11 @@ import (
 )
 
 type UserLevelService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 }
 
-func newUserLevelService(db *db.Database) *UserLevelService {
+func newUserLevelService(db *db.Mongo) *UserLevelService {
 	return &UserLevelService{db: db, collection: CollectionUserLevel}
 }
 

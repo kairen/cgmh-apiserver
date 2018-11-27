@@ -16,7 +16,7 @@ const (
 )
 
 type DataAccess struct {
-	db *db.Database
+	db *db.Mongo
 
 	// Access services
 	Auth  *AuthService
@@ -25,7 +25,7 @@ type DataAccess struct {
 	Form  *FormService
 }
 
-func New(db *db.Database) *DataAccess {
+func New(db *db.Mongo) *DataAccess {
 	da := &DataAccess{db: db}
 	user := newUserService(db)
 	da.User = user

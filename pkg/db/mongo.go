@@ -14,12 +14,12 @@ type Flag struct {
 	DB       string
 }
 
-type Database struct {
+type Mongo struct {
 	session *mgo.Session
 	flag    *Flag
 }
 
-func New(flag *Flag) (*Database, error) {
+func New(flag *Flag) (*Mongo, error) {
 	dialInfo := &mgo.DialInfo{
 		Addrs:    []string{flag.Host},
 		Source:   flag.Source,
@@ -33,54 +33,54 @@ func New(flag *Flag) (*Database, error) {
 		return nil, err
 	}
 
-	database := &Database{session: s, flag: flag}
+	database := &Mongo{session: s, flag: flag}
 	return database, nil
 }
 
-func (d *Database) connect(collection string) (*mgo.Session, *mgo.Collection) {
+func (d *Mongo) connect(collection string) (*mgo.Session, *mgo.Collection) {
 	s := d.session.Copy()
 	c := s.DB(d.flag.DB).C(collection)
 	return s, c
 }
 
-func (d *Database) Insert(collection string, docs ...interface{}) error {
+func (d *Mongo) Insert(collection string, docs ...interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	return c.Insert(docs...)
 }
 
-func (d *Database) IsExist(collection string, query interface{}) bool {
+func (d *Mongo) IsExist(collection string, query interface{}) bool {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	count, _ := c.Find(query).Count()
 	return count > 0
 }
 
-func (d *Database) FindOne(collection string, query, selector, result interface{}) error {
+func (d *Mongo) FindOne(collection string, query, selector, result interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	return c.Find(query).Select(selector).One(result)
 }
 
-func (d *Database) FindAll(collection string, query, selector, result interface{}) error {
+func (d *Mongo) FindAll(collection string, query, selector, result interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	return c.Find(query).Select(selector).All(result)
 }
 
-func (d *Database) Pipe(collection string, pipeline, result interface{}) error {
+func (d *Mongo) Pipe(collection string, pipeline, result interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	return c.Pipe(pipeline).All(result)
 }
 
-func (d *Database) Update(collection string, query, update interface{}) error {
+func (d *Mongo) Update(collection string, query, update interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	return c.Update(query, update)
 }
 
-func (d *Database) Remove(collection string, query interface{}) error {
+func (d *Mongo) Remove(collection string, query interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
 	return c.Remove(query)

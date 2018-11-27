@@ -8,11 +8,11 @@ import (
 )
 
 type UserPasswordService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 }
 
-func newUserPasswordService(db *db.Database) *UserPasswordService {
+func newUserPasswordService(db *db.Mongo) *UserPasswordService {
 	return &UserPasswordService{db: db, collection: CollectionUserPassword}
 }
 

@@ -8,11 +8,11 @@ import (
 )
 
 type UserStatusService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 }
 
-func newUserStatusService(db *db.Database) *UserStatusService {
+func newUserStatusService(db *db.Mongo) *UserStatusService {
 	return &UserStatusService{db: db, collection: CollectionUserStatus}
 }
 

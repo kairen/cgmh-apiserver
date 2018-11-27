@@ -8,11 +8,11 @@ import (
 )
 
 type LevelService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 }
 
-func newLevelService(db *db.Database) *LevelService {
+func newLevelService(db *db.Mongo) *LevelService {
 	return &LevelService{db: db, collection: CollectionLevel}
 }
 

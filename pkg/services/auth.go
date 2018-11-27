@@ -6,13 +6,13 @@ import (
 )
 
 type AuthService struct {
-	db *db.Database
+	db *db.Mongo
 
 	// Refers service
 	user *UserService
 }
 
-func newAuthService(db *db.Database, user *UserService) *AuthService {
+func newAuthService(db *db.Mongo, user *UserService) *AuthService {
 	return &AuthService{db: db, user: user}
 }
 

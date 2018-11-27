@@ -8,14 +8,14 @@ import (
 )
 
 type FormService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 
 	// Refers service
 	user *UserService
 }
 
-func newFormService(db *db.Database, user *UserService) *FormService {
+func newFormService(db *db.Mongo, user *UserService) *FormService {
 	return &FormService{db: db, user: user, collection: CollectionForm}
 }
 

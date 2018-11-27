@@ -54,7 +54,7 @@ func parseFlags() {
 	flag.Parse()
 }
 
-func initDatabase() *db.Database {
+func initDatabase() *db.Mongo {
 	log.Printf("Connecting database...")
 	f := &db.Flag{
 		Host:     dbHost,

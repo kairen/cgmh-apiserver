@@ -8,11 +8,11 @@ import (
 )
 
 type UserRoleService struct {
-	db         *db.Database
+	db         *db.Mongo
 	collection string
 }
 
-func newUserRoleService(db *db.Database) *UserRoleService {
+func newUserRoleService(db *db.Mongo) *UserRoleService {
 	return &UserRoleService{db: db, collection: CollectionUserRole}
 }
 
