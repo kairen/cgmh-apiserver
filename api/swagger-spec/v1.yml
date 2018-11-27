@@ -203,7 +203,7 @@ paths:
         in: body
         required: true
         schema:
-          "$ref": "#/definitions/user"
+          "$ref": "#/definitions/user_post"
       responses:
         '200':
           description: OK
@@ -235,7 +235,11 @@ paths:
         in: body
         required: true
         schema:
-          "$ref": "#/definitions/user"
+            type: object
+            properties:
+              uuid:
+                type: string
+                example: u00001
       responses:
         '200':
           description: OK
@@ -244,12 +248,10 @@ paths:
             properties:
               message:
                 type: string
-                example: 'User has been deleted'
+                example: 'ok'
               code:
                 type: integer
                 example: 200
-              data:
-                type: object
         '400':
           description: 'Invaild Payload'
         '401':
@@ -314,6 +316,28 @@ paths:
         required: true
         schema:
           "$ref": "#/definitions/user_role"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/userlevel":
+    put:
+      tags:
+      - User
+      summary: 'Update user level'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/user_level"
       responses:
         '200':
           description: OK
@@ -666,7 +690,7 @@ definitions:
         type: string
         format: uuid
         example: u00001
-        description: auto genearate by server
+        description: Auto genearate by server
       email:
         type: string
         example: test@test.com
@@ -697,7 +721,36 @@ definitions:
       active:
         type: bool
         example: true
-  password:
+      block:
+        type: bool
+        example: false
+  user_post:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid
+        example: u00001
+        description: Auto genearate by server
+      email:
+        type: string
+        example: test@test.com
+      name:
+        type: string
+        example: John
+      agency:
+        type: string
+        example: CGMH
+      unit:
+       type: string
+       example: AI team
+      jobTitle:
+       type: string
+       example: enginner
+      phone:
+        type: string
+        example: 0912345678
+  user_password:
     type: object
     properties:
       userUUID:
@@ -733,6 +786,17 @@ definitions:
       name:
         type: string
         example: Admin
+  user_level:
+    type: object
+    properties:
+      userUUID:
+        type: string
+        format: uuid
+        example: u00001
+        description: Auto genearate by server
+      name:
+        type: string
+        example: 'Level 1'
   level:
     type: object
     required:
@@ -743,11 +807,11 @@ definitions:
       id:
         type: string
         format: uuid
-        description: auto genearate by db
+        description: Auto genearate by db
       name:
         type: string
         example: 'LEVEL 3'
-      gpu:
+      numberOfGPU:
         type: integer
         example: 200
       day:
@@ -767,7 +831,7 @@ definitions:
       id:
         type: string
         format: uuid
-        description: auto genearate by db
+        description: Auto genearate by db
       adminUUID:
         type: string
         example: u00001
@@ -788,7 +852,7 @@ definitions:
       id:
         type: string
         format: uuid
-        description: auto genearate by db
+        description: Auto genearate by db
       adminUUID:
         type: string
         example: admin@test.com
@@ -830,7 +894,7 @@ definitions:
       id:
         type: string
         format: uuid
-        description: auto genearate by db
+        description: Auto genearate by db
       ownerUserUUID:
         type: string
         format: uuid

@@ -5,28 +5,31 @@ import (
 )
 
 const (
-	CollectionCounter    = "Counter"
-	CollectionUser       = "User"
-	CollectionUserRole   = "UserRole"
-	CollectionUserStatus = "UserStatus"
-	CollectionPassword   = "Password"
-	CollectionForm       = "Form"
+	CollectionCounter      = "Counter"
+	CollectionUser         = "User"
+	CollectionUserRole     = "UserRole"
+	CollectionUserStatus   = "UserStatus"
+	CollectionUserPassword = "UserPassword"
+	CollectionLevel        = "Level"
+	CollectionForm         = "Form"
 )
 
 type DataAccess struct {
 	db *db.Database
 
 	// Data access objects
-	Auth *AuthOp
-	User *UserOp
-	Form *FormOp
+	Auth  *AuthOp
+	User  *UserOp
+	Level *LevelOp
+	Form  *FormOp
 }
 
 func New(db *db.Database) *DataAccess {
 	da := &DataAccess{db: db}
 	// Init data access objects
 	counter := &CounterOp{db: db, collection: CollectionCounter}
-	pwd := &UserPasswordOp{db: db, collection: CollectionPassword}
+	pwd := &UserPasswordOp{db: db, collection: CollectionUserPassword}
+	level := &LevelOp{db: db, collection: CollectionLevel}
 	userRole := &UserRoleOp{db: db, collection: CollectionUserRole}
 	userStatus := &UserStatusOp{db: db, collection: CollectionUserStatus}
 	user := &UserOp{
@@ -37,12 +40,11 @@ func New(db *db.Database) *DataAccess {
 		counter:    counter,
 		collection: CollectionUser,
 	}
-	auth := &AuthOp{db: db, user: user}
-	form := &FormOp{db: db, user: user, collection: CollectionForm}
 
 	// Assign data access objects
 	da.User = user
-	da.Form = form
-	da.Auth = auth
+	da.Form = &FormOp{db: db, user: user, collection: CollectionForm}
+	da.Auth = &AuthOp{db: db, user: user}
+	da.Level = level
 	return da
 }

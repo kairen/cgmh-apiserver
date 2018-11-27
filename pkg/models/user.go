@@ -8,6 +8,7 @@ type User struct {
 	Unit     string   `bson:"unit" json:"unit"`
 	JobTitle string   `bson:"jobTitle" json:"jobTitle"`
 	Phone    string   `bson:"phone" json:"phone"`
+	Level    string   `bson:"level,omitempty" json:"level"`
 	Active   bool     `bson:"active,omitempty" json:"active"`
 	Block    bool     `bson:"block,omitempty" json:"block"`
 	Role     RoleType `bson:"role,omitempty" json:"role"`

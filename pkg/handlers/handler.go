@@ -13,16 +13,18 @@ import (
 type GlobalHandler struct {
 	dao *dao.DataAccess
 
-	// subhandler
-	Auth *AuthHandler
-	User *UserHandler
-	Form *FormHandler
+	// Sub handlers
+	Auth  *AuthHandler
+	User  *UserHandler
+	Level *LevelHandler
+	Form  *FormHandler
 }
 
 func New(dao *dao.DataAccess) *GlobalHandler {
 	h := &GlobalHandler{dao: dao}
 	h.Auth = &AuthHandler{dao: dao}
 	h.User = &UserHandler{dao: dao}
+	h.Level = &LevelHandler{dao: dao}
 	h.Form = &FormHandler{dao: dao}
 	return h
 }
