@@ -26,7 +26,7 @@ func New(db *db.Database) *DataAccess {
 	da := &DataAccess{db: db}
 	// Init data access objects
 	counter := &CounterOp{db: db, collection: CollectionCounter}
-	pwd := &PasswordOp{db: db, collection: CollectionPassword}
+	pwd := &UserPasswordOp{db: db, collection: CollectionPassword}
 	userRole := &UserRoleOp{db: db, collection: CollectionUserRole}
 	userStatus := &UserStatusOp{db: db, collection: CollectionUserStatus}
 	user := &UserOp{

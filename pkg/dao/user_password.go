@@ -7,23 +7,23 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-type PasswordOp struct {
+type UserPasswordOp struct {
 	db         *db.Database
 	collection string
 }
 
-func (op *PasswordOp) Insert(pwd *models.Password) error {
+func (op *UserPasswordOp) Insert(pwd *models.Password) error {
 	return op.db.Insert(op.collection, pwd)
 }
 
-func (op *PasswordOp) IsExist(uuid, passwd string) bool {
+func (op *UserPasswordOp) IsExist(uuid, passwd string) bool {
 	return op.db.IsExist(op.collection, bson.M{"userUUID": uuid, "secret": passwd})
 }
 
-func (op *PasswordOp) Update(pwd *models.Password) error {
+func (op *UserPasswordOp) Update(pwd *models.Password) error {
 	return op.db.Update(op.collection, bson.M{"userUUID": pwd.UserUUID}, pwd)
 }
 
-func (op *PasswordOp) Remove(uuid string) error {
+func (op *UserPasswordOp) Remove(uuid string) error {
 	return op.db.Remove(op.collection, bson.M{"userUUID": uuid})
 }

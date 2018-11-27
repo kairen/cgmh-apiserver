@@ -15,7 +15,7 @@ type UserOp struct {
 	// Refers objects
 	role     *UserRoleOp
 	status   *UserStatusOp
-	password *PasswordOp
+	password *UserPasswordOp
 	counter  *CounterOp
 }
 
