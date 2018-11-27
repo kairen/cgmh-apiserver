@@ -1,4 +1,4 @@
-package role
+package permission
 
 import (
 	"github.com/gin-gonic/gin"

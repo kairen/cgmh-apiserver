@@ -9,7 +9,7 @@ import (
 	"inwinstack/cgmh/apiserver/pkg/dao"
 	"inwinstack/cgmh/apiserver/pkg/handlers"
 	"inwinstack/cgmh/apiserver/pkg/middlewares/jwt"
-	"inwinstack/cgmh/apiserver/pkg/middlewares/role"
+	"inwinstack/cgmh/apiserver/pkg/middlewares/permission"
 
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -57,7 +57,7 @@ func (r *Router) LinkHandlers() {
 	// Require admin user for common API
 	admin := r.engine.Group("")
 	admin.Use(jwt.JWT())
-	admin.Use(role.Admin(dao))
+	admin.Use(permission.Admin(dao))
 	{
 		admin.PUT("/auth/forcereset", r.handler.Auth.ForceReset)
 	}
@@ -73,7 +73,7 @@ func (r *Router) LinkHandlers() {
 
 	// Require admin user for V1 API
 	adminv1 := apiv1.Group("")
-	adminv1.Use(role.Admin(dao))
+	adminv1.Use(permission.Admin(dao))
 	{
 		adminv1.GET("/user", r.handler.User.List)
 		adminv1.PUT("/user", r.handler.User.Update)
