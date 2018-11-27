@@ -54,14 +54,6 @@ func (r *Router) LinkHandlers() {
 	r.engine.POST("/auth/register", r.handler.Auth.Register)
 	r.engine.PUT("/auth/reset", r.handler.Auth.Reset)
 
-	// Require admin user for common API
-	admin := r.engine.Group("")
-	admin.Use(jwt.JWT())
-	admin.Use(permission.Admin(dao))
-	{
-		admin.PUT("/auth/forcereset", r.handler.Auth.ForceReset)
-	}
-
 	apiv1 := r.engine.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
 	{
@@ -69,6 +61,14 @@ func (r *Router) LinkHandlers() {
 		apiv1.GET("/form", r.handler.Form.List)
 		apiv1.GET("/form/:id", r.handler.Form.Get)
 		apiv1.POST("/form", r.handler.Form.Create)
+	}
+
+	// Require admin user for common API
+	admin := r.engine.Group("")
+	admin.Use(jwt.JWT())
+	admin.Use(permission.Admin(dao))
+	{
+		admin.PUT("/auth/forcereset", r.handler.Auth.ForceReset)
 	}
 
 	// Require admin user for V1 API
