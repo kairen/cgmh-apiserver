@@ -1,4 +1,4 @@
-package models
+package model
 
 type User struct {
 	UUID     string   `bson:"uuid" json:"uuid"`

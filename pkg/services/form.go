@@ -19,7 +19,7 @@ func newFormService(db *db.Mongo, user *UserService) *FormService {
 	return &FormService{db: db, user: user, collection: CollectionForm}
 }
 
-func (svc *FormService) Insert(form *models.Form) error {
+func (svc *FormService) Insert(form *model.Form) error {
 	if _, err := svc.user.FindByUUID(form.OwnerUserUUID); err != nil {
 		return err
 	}
@@ -29,16 +29,16 @@ func (svc *FormService) Insert(form *models.Form) error {
 	return svc.db.Insert(svc.collection, form)
 }
 
-func (svc *FormService) FindAll(query *models.Query) ([]models.Form, error) {
-	result := []models.Form{}
+func (svc *FormService) FindAll(query *model.Query) ([]model.Form, error) {
+	result := []model.Form{}
 	if err := svc.db.FindAll(svc.collection, query.ToBSON(), nil, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (svc *FormService) FindByID(id string) (*models.Form, error) {
-	result := &models.Form{}
+func (svc *FormService) FindByID(id string) (*model.Form, error) {
+	result := &model.Form{}
 	query := bson.M{"_id": bson.ObjectIdHex(id)}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (svc *FormService) FindByID(id string) (*models.Form, error) {
 	return result, nil
 }
 
-func (svc *FormService) Update(form *models.Form) error {
+func (svc *FormService) Update(form *model.Form) error {
 	return svc.db.Update(svc.collection, bson.M{"_id": form.ID}, form)
 }
 

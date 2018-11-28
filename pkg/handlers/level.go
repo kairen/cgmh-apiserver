@@ -32,7 +32,7 @@ func (h *LevelHandler) Create(c *gin.Context) {
 		return
 	}
 
-	level := &models.Level{}
+	level := &model.Level{}
 	if err := c.ShouldBindJSON(level); err != nil {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
@@ -56,7 +56,7 @@ func (h *LevelHandler) Update(c *gin.Context) {
 		return
 	}
 
-	level := &models.Level{}
+	level := &model.Level{}
 	if err := c.ShouldBindJSON(&level); err != nil || level.ID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return

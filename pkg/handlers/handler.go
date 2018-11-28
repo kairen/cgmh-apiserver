@@ -57,7 +57,7 @@ func getUserUUIDByJWT(c *gin.Context) (string, error) {
 	return uuid, nil
 }
 
-func getUserByJWT(c *gin.Context, svc *service.DataAccess) (*models.User, error) {
+func getUserByJWT(c *gin.Context, svc *service.DataAccess) (*model.User, error) {
 	uuid, err := getUserUUIDByJWT(c)
 	if err != nil {
 		return nil, err

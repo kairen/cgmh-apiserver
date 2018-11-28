@@ -16,7 +16,7 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	login := &models.Login{}
+	login := &model.Login{}
 	err := c.ShouldBindJSON(&login)
 	if err != nil || login.Email == "" || login.Password == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
@@ -55,7 +55,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	register := &models.Register{}
+	register := &model.Register{}
 	err := c.ShouldBindJSON(&register)
 	if err != nil || register.Email == "" || register.Password == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
@@ -79,7 +79,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	user := register.ToUser()
-	user.Role = models.RoleUser
+	user.Role = model.RoleUser
 	secret := util.MD5Encode(decode)
 	if err := h.svc.Auth.Register(user, secret); err != nil {
 		http.InternalServerError(c, err)
@@ -89,7 +89,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Reset(c *gin.Context) {
-	reset := &models.Reset{}
+	reset := &model.Reset{}
 	err := c.ShouldBindJSON(&reset)
 	if err != nil || reset.Email == "" || reset.OldPassword == "" || reset.NewPassword == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
@@ -128,7 +128,7 @@ func (h *AuthHandler) ForceReset(c *gin.Context) {
 		return
 	}
 
-	reset := &models.ForceReset{}
+	reset := &model.ForceReset{}
 	err := c.ShouldBindJSON(&reset)
 	if err != nil || reset.Email == "" {
 		http.BadRequest(c, http.ErrorPayloadField)

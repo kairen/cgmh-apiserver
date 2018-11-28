@@ -1,4 +1,4 @@
-package models
+package model
 
 type Counter struct {
 	Name string `bson:"name" json:"name" binding:"required"`

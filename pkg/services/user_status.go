@@ -16,12 +16,12 @@ func newUserStatusService(db *db.Mongo) *UserStatusService {
 	return &UserStatusService{db: db, collection: CollectionUserStatus}
 }
 
-func (svc *UserStatusService) Insert(status *models.UserStatus) error {
+func (svc *UserStatusService) Insert(status *model.UserStatus) error {
 	return svc.db.Insert(svc.collection, status)
 }
 
-func (svc *UserStatusService) FindOne(uuid string) (*models.UserStatus, error) {
-	result := &models.UserStatus{}
+func (svc *UserStatusService) FindOne(uuid string) (*model.UserStatus, error) {
+	result := &model.UserStatus{}
 	query := bson.M{"userUUID": uuid}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (svc *UserStatusService) FindOne(uuid string) (*models.UserStatus, error) {
 	return result, nil
 }
 
-func (svc *UserStatusService) Update(stat *models.UserStatus) error {
+func (svc *UserStatusService) Update(stat *model.UserStatus) error {
 	return svc.db.Update(svc.collection, bson.M{"userUUID": stat.UserUUID}, stat)
 }
 

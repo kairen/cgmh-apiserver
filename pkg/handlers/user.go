@@ -49,7 +49,7 @@ func (h *UserHandler) List(c *gin.Context) {
 }
 
 func (h *UserHandler) Update(c *gin.Context) {
-	user := &models.User{}
+	user := &model.User{}
 	if err := c.ShouldBindJSON(&user); err != nil || user.UUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
@@ -102,7 +102,7 @@ func (h *UserHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	role := &models.UserRole{}
+	role := &model.UserRole{}
 	if err := c.ShouldBindJSON(&role); err != nil || role.UserUUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
@@ -121,7 +121,7 @@ func (h *UserHandler) UpdateStatus(c *gin.Context) {
 		return
 	}
 
-	stat := &models.UserStatus{}
+	stat := &model.UserStatus{}
 	if err := c.ShouldBindJSON(&stat); err != nil || stat.UserUUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
@@ -140,7 +140,7 @@ func (h *UserHandler) UpdateLevel(c *gin.Context) {
 		return
 	}
 
-	userLevel := &models.UserLevel{}
+	userLevel := &model.UserLevel{}
 	if err := c.ShouldBindJSON(&userLevel); err != nil || userLevel.UserUUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return

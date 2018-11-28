@@ -46,7 +46,7 @@ func (svc *DataAccess) InitAdminUser() error {
 
 	pwd := util.GetEnv("INIT_ADMIN_PASSWORD", hex)
 	secret := util.MD5Encode(pwd)
-	reg := &models.User{
+	reg := &model.User{
 		Email: util.GetEnv("INIT_ADMIN_EMAIL", "admin@inwinstack.com"),
 		Name:  "administrator",
 	}
@@ -60,12 +60,12 @@ func (svc *DataAccess) InitAdminUser() error {
 		if err != nil {
 			return err
 		}
-		stat := &models.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
+		stat := &model.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
 		if err := svc.User.UpdateStatus(stat); err != nil {
 			return err
 		}
 
-		role := &models.UserRole{UserUUID: user.UUID, Name: models.RoleAdmin}
+		role := &model.UserRole{UserUUID: user.UUID, Name: model.RoleAdmin}
 		if err := svc.User.UpdateRole(role); err != nil {
 			return err
 		}

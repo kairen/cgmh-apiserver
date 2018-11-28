@@ -22,7 +22,7 @@ func (h *FormHandler) Get(c *gin.Context) {
 }
 
 func (h *FormHandler) List(c *gin.Context) {
-	query := &models.Query{}
+	query := &model.Query{}
 	err := c.ShouldBindQuery(query)
 	if err != nil {
 		http.BadRequest(c, http.ErrorQueryParams)
@@ -38,7 +38,7 @@ func (h *FormHandler) List(c *gin.Context) {
 }
 
 func (h *FormHandler) Create(c *gin.Context) {
-	form := &models.Form{}
+	form := &model.Form{}
 	if err := c.ShouldBindJSON(form); err != nil {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
@@ -52,7 +52,7 @@ func (h *FormHandler) Create(c *gin.Context) {
 }
 
 func (h *FormHandler) Update(c *gin.Context) {
-	form := &models.Form{}
+	form := &model.Form{}
 	if err := c.ShouldBindJSON(form); err != nil || form.ID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return

@@ -16,7 +16,7 @@ func newUserPasswordService(db *db.Mongo) *UserPasswordService {
 	return &UserPasswordService{db: db, collection: CollectionUserPassword}
 }
 
-func (svc *UserPasswordService) Insert(pwd *models.UserPassword) error {
+func (svc *UserPasswordService) Insert(pwd *model.UserPassword) error {
 	return svc.db.Insert(svc.collection, pwd)
 }
 
@@ -24,7 +24,7 @@ func (svc *UserPasswordService) IsExist(uuid, passwd string) bool {
 	return svc.db.IsExist(svc.collection, bson.M{"userUUID": uuid, "secret": passwd})
 }
 
-func (svc *UserPasswordService) Update(pwd *models.UserPassword) error {
+func (svc *UserPasswordService) Update(pwd *model.UserPassword) error {
 	return svc.db.Update(svc.collection, bson.M{"userUUID": pwd.UserUUID}, pwd)
 }
 

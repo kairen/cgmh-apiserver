@@ -16,12 +16,12 @@ func newAuthService(db *db.Mongo, user *UserService) *AuthService {
 	return &AuthService{db: db, user: user}
 }
 
-func (svc *AuthService) Register(user *models.User, password string) error {
+func (svc *AuthService) Register(user *model.User, password string) error {
 	if err := svc.user.Insert(user); err != nil {
 		return err
 	}
 
-	pwd := &models.UserPassword{UserUUID: user.UUID, Secret: password}
+	pwd := &model.UserPassword{UserUUID: user.UUID, Secret: password}
 	if err := svc.user.password.Insert(pwd); err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (svc *AuthService) Reset(email, password string) error {
 		return err
 	}
 
-	pwd := &models.UserPassword{
+	pwd := &model.UserPassword{
 		UserUUID: user.UUID,
 		Secret:   password,
 	}
