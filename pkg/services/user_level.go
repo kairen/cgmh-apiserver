@@ -20,10 +20,19 @@ func (svc *UserLevelService) Insert(level *models.UserLevel) error {
 	return svc.db.Insert(svc.collection, level)
 }
 
-func (svc *UserLevelService) FindOne(uuid string) (*models.UserLevel, error) {
+func (svc *UserLevelService) FindByUserUUID(uuid string) (*models.UserLevel, error) {
 	result := &models.UserLevel{}
 	query := bson.M{"userUUID": uuid}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (svc *UserLevelService) FindAllByName(name string) ([]models.UserLevel, error) {
+	result := []models.UserLevel{}
+	query := bson.M{"name": name}
+	if err := svc.db.FindAll(svc.collection, query, nil, &result); err != nil {
 		return nil, err
 	}
 	return result, nil

@@ -19,4 +19,5 @@ var (
 	ErrorFormActived      = errors.New("This form has been activated, you can't update it")
 	ErrorResourceExist    = errors.New("The resource already exists")
 	ErrorResourceNotFound = errors.New("The resource not found")
+	ErrorResourceRefer    = errors.New("This resource has a reference object using it")
 )

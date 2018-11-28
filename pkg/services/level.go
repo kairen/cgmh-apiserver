@@ -33,6 +33,15 @@ func (svc *LevelService) FindAll() ([]models.Level, error) {
 	return result, nil
 }
 
+func (svc *LevelService) FindByID(id string) (*models.Level, error) {
+	result := &models.Level{}
+	query := bson.M{"_id": bson.ObjectIdHex(id)}
+	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (svc *LevelService) Update(level *models.Level) error {
 	return svc.db.Update(svc.collection, bson.M{"_id": level.ID}, level)
 }

@@ -72,7 +72,7 @@ func (svc *UserService) getRelationalObjects(user *models.User) error {
 	user.Active = stat.Active
 	user.Block = stat.Block
 
-	level, err := svc.level.FindOne(user.UUID)
+	level, err := svc.level.FindByUserUUID(user.UUID)
 	if err != nil {
 		return err
 	}
@@ -124,6 +124,10 @@ func (svc *UserService) FindByUUID(uuid string) (*models.User, error) {
 	return result, nil
 }
 
+func (svc *UserService) FindUserLevels(levelName string) ([]models.UserLevel, error) {
+	return svc.level.FindAllByName(levelName)
+}
+
 func (svc *UserService) Update(user *models.User) error {
 	if err := svc.db.Update(svc.collection, bson.M{"uuid": user.UUID}, user); err != nil {
 		return err
@@ -141,6 +145,21 @@ func (svc *UserService) UpdateStatus(stat *models.UserStatus) error {
 
 func (svc *UserService) UpdateLevel(level *models.UserLevel) error {
 	return svc.level.Update(level)
+}
+
+func (svc *UserService) UpdateLevelsByName(oldLevel, newLevel string) error {
+	levels, err := svc.level.FindAllByName(oldLevel)
+	if err != nil {
+		return err
+	}
+
+	for _, level := range levels {
+		level.Name = newLevel
+		if err := svc.level.Update(&level); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (svc *UserService) RemoveByUUID(uuid string) error {

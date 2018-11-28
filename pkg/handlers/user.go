@@ -140,20 +140,20 @@ func (h *UserHandler) UpdateLevel(c *gin.Context) {
 		return
 	}
 
-	level := &models.UserLevel{}
-	if err := c.ShouldBindJSON(&level); err != nil || level.UserUUID == "" {
+	userLevel := &models.UserLevel{}
+	if err := c.ShouldBindJSON(&userLevel); err != nil || userLevel.UserUUID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
 
-	if !h.svc.Level.IsExistByName(level.Name) {
+	if !h.svc.Level.IsExistByName(userLevel.Name) {
 		http.BadRequest(c, http.ErrorResourceNotFound)
 		return
 	}
 
-	if err := h.svc.User.UpdateLevel(level); err != nil {
+	if err := h.svc.User.UpdateLevel(userLevel); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
-	http.Success(c, level)
+	http.Success(c, userLevel)
 }

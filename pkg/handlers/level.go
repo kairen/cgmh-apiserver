@@ -67,7 +67,18 @@ func (h *LevelHandler) Update(c *gin.Context) {
 		return
 	}
 
+	oldLevel, err := h.svc.Level.FindByID(level.ID.Hex())
+	if err != nil {
+		http.BadRequest(c, http.ErrorResourceNotFound)
+		return
+	}
+
 	if err := h.svc.Level.Update(level); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if err := h.svc.User.UpdateLevelsByName(oldLevel.Name, level.Name); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -85,6 +96,18 @@ func (h *LevelHandler) Delete(c *gin.Context) {
 	}{}
 	if err := c.ShouldBindJSON(&obj); err != nil || obj.ID == "" {
 		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	level, err := h.svc.Level.FindByID(obj.ID)
+	if err != nil {
+		http.BadRequest(c, http.ErrorResourceNotFound)
+		return
+	}
+
+	userLevels, _ := h.svc.User.FindUserLevels(level.Name)
+	if len(userLevels) > 0 {
+		http.BadRequest(c, http.ErrorResourceRefer)
 		return
 	}
 
