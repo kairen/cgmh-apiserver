@@ -14,10 +14,11 @@ type GlobalHandler struct {
 	svc *service.DataAccess
 
 	// Sub handlers
-	Auth  *AuthHandler
-	User  *UserHandler
-	Level *LevelHandler
-	Form  *FormHandler
+	Auth         *AuthHandler
+	User         *UserHandler
+	Level        *LevelHandler
+	Form         *FormHandler
+	PointHistory *PointHandler
 }
 
 func New(svc *service.DataAccess) *GlobalHandler {
@@ -26,6 +27,7 @@ func New(svc *service.DataAccess) *GlobalHandler {
 	h.User = &UserHandler{svc: svc}
 	h.Level = &LevelHandler{svc: svc}
 	h.Form = &FormHandler{svc: svc}
+	h.PointHistory = &PointHandler{svc: svc}
 	return h
 }
 

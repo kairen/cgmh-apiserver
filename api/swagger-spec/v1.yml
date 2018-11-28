@@ -823,7 +823,7 @@ definitions:
     required:
     - userUUID
     - adminUUID
-    - point
+    - value
     properties:
       userUUID:
         type: string
@@ -831,7 +831,7 @@ definitions:
       adminUUID:
         type: string
         example: u00001
-      point:
+      value:
         type: integer
         example: 100
   point_history:
@@ -846,7 +846,7 @@ definitions:
       adminUUID:
         type: string
         example: u00001
-      point:
+      value:
         type: integer
         example: 100
       time:

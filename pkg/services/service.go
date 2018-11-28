@@ -14,8 +14,10 @@ const (
 	CollectionUserStatus   = "UserStatus"
 	CollectionUserPassword = "UserPassword"
 	CollectionUserLevel    = "UserLevel"
+	CollectionUserPoint    = "UserPoint"
 	CollectionLevel        = "Level"
 	CollectionForm         = "Form"
+	CollectionPointHistory = "PointHistory"
 )
 
 type DataAccess struct {
@@ -26,6 +28,7 @@ type DataAccess struct {
 	User  *UserService
 	Level *LevelService
 	Form  *FormService
+	Point *PointService
 }
 
 func New(db *db.Mongo) *DataAccess {
@@ -35,6 +38,7 @@ func New(db *db.Mongo) *DataAccess {
 	da.Auth = newAuthService(db, user)
 	da.Form = newFormService(db, user)
 	da.Level = newLevelService(db)
+	da.Point = newPointService(db)
 	return da
 }
 

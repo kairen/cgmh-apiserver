@@ -17,6 +17,7 @@ type UserService struct {
 	status   *UserStatusService
 	level    *UserLevelService
 	password *UserPasswordService
+	point    *UserPointService
 	counter  *CounterService
 }
 
@@ -27,6 +28,7 @@ func newUserService(db *db.Mongo) *UserService {
 	user.role = newUserRoleService(db)
 	user.status = newUserStatusService(db)
 	user.level = newUserLevelService(db)
+	user.point = newUserPointService(db)
 	return user
 }
 
@@ -55,6 +57,11 @@ func (svc *UserService) Insert(user *model.User) error {
 	if err := svc.level.Insert(level); err != nil {
 		return err
 	}
+
+	point := &model.Point{UserUUID: user.UUID, Value: 0}
+	if err := svc.point.Insert(point); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -77,6 +84,12 @@ func (svc *UserService) getRelationalObjects(user *model.User) error {
 		return err
 	}
 	user.Level = level.Name
+
+	point, err := svc.point.FindByUserUUID(user.UUID)
+	if err != nil {
+		return err
+	}
+	user.Point = point.Value
 	return nil
 }
 
@@ -147,6 +160,10 @@ func (svc *UserService) UpdateLevel(level *model.UserLevel) error {
 	return svc.level.Update(level)
 }
 
+func (svc *UserService) UpdatePoint(point *model.Point) error {
+	return svc.point.Update(point)
+}
+
 func (svc *UserService) UpdateLevelsByName(oldLevel, newLevel string) error {
 	levels, err := svc.level.FindAllByName(oldLevel)
 	if err != nil {
@@ -172,6 +189,10 @@ func (svc *UserService) RemoveByUUID(uuid string) error {
 	}
 
 	if err := svc.status.Remove(uuid); err != nil {
+		return err
+	}
+
+	if err := svc.point.Remove(uuid); err != nil {
 		return err
 	}
 	return svc.password.Remove(uuid)

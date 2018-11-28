@@ -9,6 +9,7 @@ type User struct {
 	JobTitle string   `bson:"jobTitle" json:"jobTitle"`
 	Phone    string   `bson:"phone" json:"phone"`
 	Level    string   `bson:"level,omitempty" json:"level"`
+	Point    int      `bson:"point,omitempty" json:"point"`
 	Active   bool     `bson:"active,omitempty" json:"active"`
 	Block    bool     `bson:"block,omitempty" json:"block"`
 	Role     RoleType `bson:"role,omitempty" json:"role"`

@@ -4,6 +4,7 @@ import (
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	service "inwinstack/cgmh/apiserver/pkg/services"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -156,4 +157,42 @@ func (h *UserHandler) UpdateLevel(c *gin.Context) {
 		return
 	}
 	http.Success(c, userLevel)
+}
+
+func (h *UserHandler) UpdatePoint(c *gin.Context) {
+	if !isAdmin(c, h.svc) {
+		http.Forbidden(c, http.ErrorUserPermission)
+		return
+	}
+
+	point := &model.Point{}
+	if err := c.ShouldBindJSON(&point); err != nil || !point.Validate() {
+		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	user, err := h.svc.User.FindByUUID(point.UserUUID)
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	value := user.Point + point.Value
+	if value < 0 {
+		http.BadRequest(c, http.ErrorDeposit)
+		return
+	}
+
+	deposit := &model.Point{UserUUID: point.UserUUID, AdminUUID: point.AdminUUID, Value: value}
+	if err := h.svc.User.UpdatePoint(deposit); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	point.Time = time.Now().Format("2006-01-02T15:04:05.999")
+	if err := h.svc.Point.Insert(point); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, point)
 }

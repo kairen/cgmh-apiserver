@@ -13,7 +13,7 @@ type Query struct {
 func (q *Query) ToBSON() bson.M {
 	b := bson.M{}
 	if q.UserUUID != "" {
-		b["ownerUserUUID"] = q.UserUUID
+		b["userUUID"] = q.UserUUID
 	}
 
 	if q.StartDate != "" {
