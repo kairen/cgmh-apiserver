@@ -17,10 +17,8 @@ tags:
   description: User API
 - name: Level
   description: User Level API
-- name: Point
-  description: User Point API
-- name: PointLog
-  description: User Point Log API
+- name: Point Histroy
+  description: User Point History API
 - name: Form
   description: User Form API
 # API Schemes
@@ -347,6 +345,28 @@ paths:
           description: 'Unauthorized'
         '500':
           description: 'Internal Server Error'
+  "/api/v1/userpoint":
+    put:
+      tags:
+      - User
+      summary: 'Update user point'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/user_point"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
   "/api/v1/level":
     get:
       tags:
@@ -439,38 +459,16 @@ paths:
           description: 'Not Found'
         '500':
           description: 'Internal Server Error'
-  "/api/v1/point/{userid}":
-    put:
-      tags:
-      - Point
-      summary: 'Update point data by user id'
-      security:
-        - BearerAuth: [admin]
-      parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          "$ref": "#/definitions/point"
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: 'Invalid Data'
-        '401':
-          description: 'Unauthorized'
-        '500':
-          description: 'Internal Server Error'
-  "/api/v1/pointlog":
+  "/api/v1/pointhistory":
     get:
       tags:
-      - PointLog
-      summary: 'List all point logs'
+      - Point Histroy
+      summary: 'List all point history'
       parameters:
       - in: query
         name: userUUID
         type: string
-        description: 'query by user uuid'
+        description: 'Query by user uuid'
       responses:
         '200':
           description: Success
@@ -486,7 +484,7 @@ paths:
               data:
                 type: array
                 items:
-                  "$ref": "#/definitions/pointLog"
+                  "$ref": "#/definitions/point_history"
         '401':
           description: 'Unauthorized'
         '500':
@@ -683,6 +681,29 @@ definitions:
       phone:
         type: string
         example: 0912345678
+  level:
+    type: object
+    required:
+    - name
+    - gpu
+    - day
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Auto genearate by db
+      name:
+        type: string
+        example: 'LEVEL 3'
+      numberOfGPU:
+        type: integer
+        example: 200
+      day:
+        type: integer
+        example: 100
+      description:
+        type: string
+        example: 'Normal user'
   user:
     type: object
     properties:
@@ -797,72 +818,34 @@ definitions:
       name:
         type: string
         example: 'Level 1'
-  level:
+  user_point:
     type: object
     required:
-    - name
-    - gpu
-    - day
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: Auto genearate by db
-      name:
-        type: string
-        example: 'LEVEL 3'
-      numberOfGPU:
-        type: integer
-        example: 200
-      day:
-        type: integer
-        example: 100
-      description:
-        type: string
-        example: 'Normal user'
-  point:
-    type: object
-    required:
+    - userUUID
     - adminUUID
-    - action
     - point
-    - time
     properties:
-      id:
+      userUUID:
         type: string
-        format: uuid
-        description: Auto genearate by db
+        example: u00002
       adminUUID:
         type: string
         example: u00001
-      action:
-        type: integer
-        example: 0
-        description: "0 is sub point, 1 is add point"
       point:
         type: integer
         example: 100
-      time:
-        type: string
-        example: '2018-09-25T11:33:48.000'
-        description: ISODate
-  pointLog:
+  point_history:
     type: object
     properties:
       id:
         type: string
-        format: uuid
         description: Auto genearate by db
-      adminUUID:
-        type: string
-        example: admin@test.com
       userUUID:
         type: string
-        example: user@test.com
-      action:
-        type: integer
-        example: 0
-        description: "0 is sub point, 1 is add point"
+        example: u00002
+      adminUUID:
+        type: string
+        example: u00001
       point:
         type: integer
         example: 100
