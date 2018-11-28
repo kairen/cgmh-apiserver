@@ -10,10 +10,8 @@ import (
 	"time"
 
 	"inwinstack/cgmh/apiserver/pkg/db"
-	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/router"
 	"inwinstack/cgmh/apiserver/pkg/services"
-	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-contrib/cors"
 	flag "github.com/spf13/pflag"
@@ -75,46 +73,6 @@ func initDatabase() *db.Mongo {
 	}
 }
 
-func initAdminUser(svc *service.DataAccess) {
-	if initAdmin {
-		hex, err := util.RandomHex(8)
-		if err != nil {
-			log.Fatal("Server initing error:", err)
-		}
-
-		pwd := util.GetEnv("INIT_ADMIN_PASSWORD", hex)
-		secret := util.MD5Encode(pwd)
-		reg := &models.User{
-			Email: util.GetEnv("INIT_ADMIN_EMAIL", "admin@inwinstack.com"),
-			Name:  "administrator",
-		}
-
-		if !svc.User.IsExistByEmail(reg.Email) {
-			log.Println("Server initing admin...")
-			if err := svc.Auth.Register(reg, secret); err != nil {
-				log.Fatal("Server initing error:", err)
-			}
-
-			user, err := svc.User.FindByEmail(reg.Email)
-			if err != nil {
-				log.Fatal("Server initing error:", err)
-			}
-			stat := &models.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
-			if err := svc.User.UpdateStatus(stat); err != nil {
-				log.Fatal("Server initing error:", err)
-			}
-
-			role := &models.UserRole{UserUUID: user.UUID, Name: models.RoleAdmin}
-			if err := svc.User.UpdateRole(role); err != nil {
-				log.Fatal("Server initing error:", err)
-			}
-
-			log.Printf("Admin init email: %s", reg.Email)
-			log.Printf("Admin init password: %s", pwd)
-		}
-	}
-}
-
 func main() {
 	parseFlags()
 	log.SetFlags(log.LstdFlags)
@@ -143,7 +101,12 @@ func main() {
 	}
 
 	// Init admin user and handlers
-	initAdminUser(svc)
+	if initAdmin {
+		log.Println("Server initing admin...")
+		if err := svc.InitAdminUser(); err != nil {
+			log.Fatal("Server initing error:", err)
+		}
+	}
 	r.LinkSwaggerAPI(swagger)
 	r.LinkHandlers()
 

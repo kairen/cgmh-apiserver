@@ -2,6 +2,9 @@ package service
 
 import (
 	"inwinstack/cgmh/apiserver/pkg/db"
+	"inwinstack/cgmh/apiserver/pkg/models"
+	"inwinstack/cgmh/apiserver/pkg/util"
+	"log"
 )
 
 const (
@@ -33,4 +36,42 @@ func New(db *db.Mongo) *DataAccess {
 	da.Form = newFormService(db, user)
 	da.Level = newLevelService(db)
 	return da
+}
+
+func (svc *DataAccess) InitAdminUser() error {
+	hex, err := util.RandomHex(8)
+	if err != nil {
+		return err
+	}
+
+	pwd := util.GetEnv("INIT_ADMIN_PASSWORD", hex)
+	secret := util.MD5Encode(pwd)
+	reg := &models.User{
+		Email: util.GetEnv("INIT_ADMIN_EMAIL", "admin@inwinstack.com"),
+		Name:  "administrator",
+	}
+
+	if !svc.User.IsExistByEmail(reg.Email) {
+		if err := svc.Auth.Register(reg, secret); err != nil {
+			return err
+		}
+
+		user, err := svc.User.FindByEmail(reg.Email)
+		if err != nil {
+			return err
+		}
+		stat := &models.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
+		if err := svc.User.UpdateStatus(stat); err != nil {
+			return err
+		}
+
+		role := &models.UserRole{UserUUID: user.UUID, Name: models.RoleAdmin}
+		if err := svc.User.UpdateRole(role); err != nil {
+			return err
+		}
+
+		log.Printf("Admin email: %s", reg.Email)
+		log.Printf("Admin password: %s", pwd)
+	}
+	return nil
 }
