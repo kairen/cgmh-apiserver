@@ -51,7 +51,7 @@ func (h *UserHandler) List(c *gin.Context) {
 
 func (h *UserHandler) Update(c *gin.Context) {
 	user := &model.User{}
-	if err := c.ShouldBindJSON(&user); err != nil || user.UUID == "" {
+	if err := c.ShouldBindJSON(&user); err != nil || !user.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -104,7 +104,7 @@ func (h *UserHandler) UpdateRole(c *gin.Context) {
 	}
 
 	role := &model.UserRole{}
-	if err := c.ShouldBindJSON(&role); err != nil || role.UserUUID == "" {
+	if err := c.ShouldBindJSON(&role); err != nil || !role.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -123,7 +123,7 @@ func (h *UserHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	stat := &model.UserStatus{}
-	if err := c.ShouldBindJSON(&stat); err != nil || stat.UserUUID == "" {
+	if err := c.ShouldBindJSON(&stat); err != nil || !stat.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -142,7 +142,7 @@ func (h *UserHandler) UpdateLevel(c *gin.Context) {
 	}
 
 	userLevel := &model.UserLevel{}
-	if err := c.ShouldBindJSON(&userLevel); err != nil || userLevel.UserUUID == "" {
+	if err := c.ShouldBindJSON(&userLevel); err != nil || !userLevel.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}

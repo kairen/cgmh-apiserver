@@ -12,3 +12,10 @@ type Level struct {
 	Description string        `bson:"description" json:"description"`
 	Default     bool          `bson:"default" json:"default"`
 }
+
+func (lv *Level) Validate() bool {
+	if lv.Name == "" || lv.Day <= 0 || lv.NumberOfGPU <= 0 {
+		return false
+	}
+	return true
+}

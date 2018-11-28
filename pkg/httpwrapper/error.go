@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	ErrorPayloadField     = errors.New("Payload missing the required key")
-	ErrorQueryParams      = errors.New("Params missing the required query values")
+	ErrorPayloadField     = errors.New("Payload missing the required key, or invalid values")
+	ErrorQueryParams      = errors.New("Params missing the required query values, or invalid values")
 	ErrorAuthHeader       = errors.New("Authorization Header missing token from Request")
 	ErrorAuthToken        = errors.New("The token is invalid or expired")
 	ErrorUserLogin        = errors.New("Invalid Email or Password")

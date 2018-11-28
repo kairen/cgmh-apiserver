@@ -17,7 +17,7 @@ func newUserRoleService(db *db.Mongo) *UserRoleService {
 }
 
 func (svc *UserRoleService) Insert(role *model.UserRole) error {
-	role.Validate()
+	role.ValidateRole()
 	return svc.db.Insert(svc.collection, role)
 }
 
@@ -31,7 +31,7 @@ func (svc *UserRoleService) FindOne(uuid string) (*model.UserRole, error) {
 }
 
 func (svc *UserRoleService) Update(role *model.UserRole) error {
-	role.Validate()
+	role.ValidateRole()
 	return svc.db.Update(svc.collection, bson.M{"userUUID": role.UserUUID}, role)
 }
 

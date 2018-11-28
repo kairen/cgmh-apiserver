@@ -19,9 +19,11 @@ func (u *User) IsAdmin() bool {
 	return u.Role == RoleAdmin
 }
 
-type UserRole struct {
-	UserUUID string   `bson:"userUUID" json:"userUUID" binding:"required"`
-	Name     RoleType `bson:"name" json:"name" binding:"required"`
+func (u *User) Validate() bool {
+	if u.UUID == "" || u.Email == "" || u.Name == "" {
+		return false
+	}
+	return true
 }
 
 type RoleType string
@@ -32,7 +34,19 @@ const (
 	RoleUser  RoleType = "User"
 )
 
-func (role *UserRole) Validate() {
+type UserRole struct {
+	UserUUID string   `bson:"userUUID" json:"userUUID" binding:"required"`
+	Name     RoleType `bson:"name" json:"name" binding:"required"`
+}
+
+func (ur *UserRole) Validate() bool {
+	if ur.UserUUID == "" || ur.Name == "" {
+		return false
+	}
+	return true
+}
+
+func (role *UserRole) ValidateRole() {
 	if role.Name != RoleAdmin && role.Name != RoleUser {
 		role.Name = RoleUser
 	}
@@ -44,12 +58,26 @@ type UserStatus struct {
 	Block    bool   `bson:"block" json:"block" binding:"required"`
 }
 
+func (us *UserStatus) Validate() bool {
+	if us.UserUUID == "" {
+		return false
+	}
+	return true
+}
+
+const LevelNone = "None"
+
 type UserLevel struct {
 	UserUUID string `bson:"userUUID" json:"userUUID" binding:"required"`
 	Name     string `bson:"name" json:"name" binding:"required"`
 }
 
-const LevelNone = "None"
+func (ul *UserLevel) Validate() bool {
+	if ul.UserUUID == "" || ul.Name == "" {
+		return false
+	}
+	return true
+}
 
 type UserPassword struct {
 	UserUUID string `bson:"userUUID" json:"userUUID"`

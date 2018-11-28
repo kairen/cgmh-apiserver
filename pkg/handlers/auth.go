@@ -17,8 +17,7 @@ type AuthHandler struct {
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	login := &model.Login{}
-	err := c.ShouldBindJSON(&login)
-	if err != nil || login.Email == "" || login.Password == "" {
+	if err := c.ShouldBindJSON(&login); err != nil || !login.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -56,8 +55,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 func (h *AuthHandler) Register(c *gin.Context) {
 	register := &model.Register{}
-	err := c.ShouldBindJSON(&register)
-	if err != nil || register.Email == "" || register.Password == "" {
+	if err := c.ShouldBindJSON(&register); err != nil || !register.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -90,8 +88,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 func (h *AuthHandler) Reset(c *gin.Context) {
 	reset := &model.Reset{}
-	err := c.ShouldBindJSON(&reset)
-	if err != nil || reset.Email == "" || reset.OldPassword == "" || reset.NewPassword == "" {
+	if err := c.ShouldBindJSON(&reset); err != nil || !reset.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -129,8 +126,7 @@ func (h *AuthHandler) ForceReset(c *gin.Context) {
 	}
 
 	reset := &model.ForceReset{}
-	err := c.ShouldBindJSON(&reset)
-	if err != nil || reset.Email == "" {
+	if err := c.ShouldBindJSON(&reset); err != nil || !reset.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}

@@ -33,7 +33,7 @@ func (h *LevelHandler) Create(c *gin.Context) {
 	}
 
 	level := &model.Level{}
-	if err := c.ShouldBindJSON(level); err != nil {
+	if err := c.ShouldBindJSON(level); err != nil || !level.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
