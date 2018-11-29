@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/services"
@@ -53,8 +52,7 @@ func (h *FormHandler) calculateCharge(form *model.Form, level *model.Level) int 
 
 func (h *FormHandler) Create(c *gin.Context) {
 	form := &model.Form{}
-	if err := c.ShouldBindJSON(form); err != nil {
-		fmt.Println(err)
+	if err := c.ShouldBindJSON(form); err != nil || !form.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -85,7 +83,7 @@ func (h *FormHandler) Create(c *gin.Context) {
 
 func (h *FormHandler) Update(c *gin.Context) {
 	form := &model.Form{}
-	if err := c.ShouldBindJSON(form); err != nil || form.ID == "" {
+	if err := c.ShouldBindJSON(form); err != nil || !form.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}

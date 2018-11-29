@@ -56,6 +56,13 @@ type Form struct {
 	LastUpdateTime        string        `bson:"lastUpdateTime,omitempty" json:"lastUpdateTime,omitempty"`
 }
 
+func (f *Form) Validate() bool {
+	if f.ContactName == "" || f.ContactEmail == "" || f.ContactPhone == "" || f.NumberOfGPU <= 0 {
+		return false
+	}
+	return true
+}
+
 type FormStatus struct {
 	FormID bson.ObjectId `bson:"formID" json:"formID" binding:"required"`
 	State  FormState     `bson:"state" json:"state" binding:"required"`
