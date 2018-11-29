@@ -19,17 +19,8 @@ func (h *PointHandler) List(c *gin.Context) {
 		return
 	}
 
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
-
-		if uuid != query.UserUUID {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
+	if !checkUserUUID(c, h.svc, query.UserUUID) {
+		return
 	}
 
 	points, err := h.svc.Point.FindAll(query)

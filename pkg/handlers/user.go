@@ -3,8 +3,8 @@ package handler
 import (
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
-	service "inwinstack/cgmh/apiserver/pkg/services"
-	"time"
+	"inwinstack/cgmh/apiserver/pkg/services"
+	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,17 +14,8 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) Get(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
-
-		if uuid != c.Param("uuid") {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
+	if !checkUserUUID(c, h.svc, c.Param("uuid")) {
+		return
 	}
 
 	user, err := h.svc.User.FindByUUID(c.Param("uuid"))
@@ -56,17 +47,8 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
-
-		if uuid != user.UUID {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
+	if !checkUserUUID(c, h.svc, user.UUID) {
+		return
 	}
 
 	if err := h.svc.User.Update(user); err != nil {
@@ -189,7 +171,7 @@ func (h *UserHandler) UpdatePoint(c *gin.Context) {
 		return
 	}
 
-	point.Time = time.Now().Format("2006-01-02T15:04:05.999")
+	point.Time = util.NowTime()
 	if err := h.svc.Point.Insert(point); err != nil {
 		http.InternalServerError(c, err)
 		return

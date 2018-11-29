@@ -21,17 +21,8 @@ func (h *FormHandler) Get(c *gin.Context) {
 		return
 	}
 
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
-
-		if uuid != form.UserUUID {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
+	if !checkUserUUID(c, h.svc, form.UserUUID) {
+		return
 	}
 	http.Success(c, form)
 }
@@ -43,17 +34,8 @@ func (h *FormHandler) List(c *gin.Context) {
 		return
 	}
 
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
-
-		if uuid != query.UserUUID {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
+	if !checkUserUUID(c, h.svc, query.UserUUID) {
+		return
 	}
 
 	forms, err := h.svc.Form.FindAll(query)
@@ -108,17 +90,8 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
-
-		if uuid != form.UserUUID {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
+	if !checkUserUUID(c, h.svc, form.UserUUID) {
+		return
 	}
 
 	user, err := h.svc.User.FindByUUID(form.UserUUID)
