@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"fmt"
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/services"
+	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,15 +20,40 @@ func (h *FormHandler) Get(c *gin.Context) {
 		http.InternalServerError(c, err)
 		return
 	}
+
+	if !isAdmin(c, h.svc) {
+		uuid, err := getUserUUIDByJWT(c)
+		if err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+
+		if uuid != form.UserUUID {
+			http.Forbidden(c, http.ErrorUserPermission)
+			return
+		}
+	}
 	http.Success(c, form)
 }
 
 func (h *FormHandler) List(c *gin.Context) {
 	query := &model.Query{}
-	err := c.ShouldBindQuery(query)
-	if err != nil {
+	if err := c.ShouldBindQuery(query); err != nil {
 		http.BadRequest(c, http.ErrorQueryParams)
 		return
+	}
+
+	if !isAdmin(c, h.svc) {
+		uuid, err := getUserUUIDByJWT(c)
+		if err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+
+		if uuid != query.UserUUID {
+			http.Forbidden(c, http.ErrorUserPermission)
+			return
+		}
 	}
 
 	forms, err := h.svc.Form.FindAll(query)
@@ -37,13 +64,36 @@ func (h *FormHandler) List(c *gin.Context) {
 	http.Success(c, forms)
 }
 
+func (h *FormHandler) calculateCharge(form *model.Form, level *model.Level) int {
+	ed := util.ElapsedDay(form.ExpectTime.Start, form.ExpectTime.End)
+	return (form.NumberOfGPU * level.GPUPrice) + (ed * level.DayPrice)
+}
+
 func (h *FormHandler) Create(c *gin.Context) {
 	form := &model.Form{}
 	if err := c.ShouldBindJSON(form); err != nil {
+		fmt.Println(err)
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
 
+	user, err := h.svc.User.FindByUUID(form.UserUUID)
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	level, err := h.svc.Level.FindByName(user.Level)
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	expect := h.calculateCharge(form, level)
+	form.Charge.Expect = expect
+	form.Charge.Actual = expect
+	form.CreationTime = util.NowTime()
+	form.LastUpdateTime = util.NowTime()
 	if err := h.svc.Form.Insert(form); err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -58,6 +108,33 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
+	if !isAdmin(c, h.svc) {
+		uuid, err := getUserUUIDByJWT(c)
+		if err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+
+		if uuid != form.UserUUID {
+			http.Forbidden(c, http.ErrorUserPermission)
+			return
+		}
+	}
+
+	user, err := h.svc.User.FindByUUID(form.UserUUID)
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	level, err := h.svc.Level.FindByName(user.Level)
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	form.Charge.Expect = h.calculateCharge(form, level)
+	form.LastUpdateTime = util.NowTime()
 	if err := h.svc.Form.Update(form); err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -65,17 +142,40 @@ func (h *FormHandler) Update(c *gin.Context) {
 	http.Success(c, form)
 }
 
-func (h *FormHandler) Delete(c *gin.Context) {
-	form := &struct {
-		ID string `json:"id" binding:"required"`
-	}{}
-	err := c.ShouldBindJSON(&form)
-	if err != nil {
+func (h *FormHandler) UpdateStatus(c *gin.Context) {
+	if !isAdmin(c, h.svc) {
+		http.Forbidden(c, http.ErrorUserPermission)
+		return
+	}
+
+	status := &model.FormStatus{}
+	if err := c.ShouldBindJSON(&status); err != nil || !status.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
 
-	if err := h.svc.Form.RemoveByID(form.ID); err != nil {
+	if err := h.svc.Form.UpdateStatus(status); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, status)
+}
+
+func (h *FormHandler) Delete(c *gin.Context) {
+	if !isAdmin(c, h.svc) {
+		http.Forbidden(c, http.ErrorUserPermission)
+		return
+	}
+
+	obj := &struct {
+		ID string `json:"id" binding:"required"`
+	}{}
+	if err := c.ShouldBindJSON(&obj); err != nil || obj.ID == "" {
+		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	if err := h.svc.Form.Remove(obj.ID); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}

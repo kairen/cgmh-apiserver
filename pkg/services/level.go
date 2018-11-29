@@ -25,18 +25,27 @@ func (svc *LevelService) IsExistByName(name string) bool {
 	return svc.db.IsExist(svc.collection, bson.M{"name": name})
 }
 
-func (svc *LevelService) FindAll() ([]model.Level, error) {
-	result := []model.Level{}
-	if err := svc.db.FindAll(svc.collection, nil, nil, &result); err != nil {
+func (svc *LevelService) FindByID(id string) (*model.Level, error) {
+	result := &model.Level{}
+	query := bson.M{"_id": bson.ObjectIdHex(id)}
+	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (svc *LevelService) FindByID(id string) (*model.Level, error) {
+func (svc *LevelService) FindByName(name string) (*model.Level, error) {
 	result := &model.Level{}
-	query := bson.M{"_id": bson.ObjectIdHex(id)}
+	query := bson.M{"name": name}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (svc *LevelService) FindAll() ([]model.Level, error) {
+	result := []model.Level{}
+	if err := svc.db.FindAll(svc.collection, nil, nil, &result); err != nil {
 		return nil, err
 	}
 	return result, nil

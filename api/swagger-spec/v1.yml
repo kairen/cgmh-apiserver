@@ -498,7 +498,7 @@ paths:
       - in: query
         name: userUUID
         type: string
-        description: 'query by user uuid'
+        description: 'Query by user uuid'
       responses:
         '200':
           description: Success
@@ -537,7 +537,7 @@ paths:
             properties:
               message:
                 type: string
-                example: 'Form has been created'
+                example: ok
               code:
                 type: integer
                 example: 200
@@ -567,7 +567,7 @@ paths:
             properties:
               message:
                 type: string
-                example: 'Form has been updated'
+                example: ok
               code:
                 type: integer
                 example: 200
@@ -590,7 +590,11 @@ paths:
         in: body
         required: true
         schema:
-          "$ref": "#/definitions/form"
+            type: object
+            properties:
+              id:
+                type: string
+                example: u00001
       responses:
         '200':
           description: OK
@@ -599,7 +603,7 @@ paths:
             properties:
               message:
                 type: string
-                example: 'Form has been deleted'
+                example: ok
               code:
                 type: integer
                 example: 200
@@ -607,6 +611,28 @@ paths:
                 type: object
         '400':
           description: 'Invaild Payload'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
+  "/api/v1/formstatus":
+    put:
+      tags:
+      - Form
+      summary: 'Update form status'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          "$ref": "#/definitions/form_status"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
         '401':
           description: 'Unauthorized'
         '500':
@@ -685,8 +711,8 @@ definitions:
     type: object
     required:
     - name
-    - gpu
-    - day
+    - gpuPrice
+    - dayPrice
     properties:
       id:
         type: string
@@ -695,10 +721,10 @@ definitions:
       name:
         type: string
         example: 'LEVEL 3'
-      numberOfGPU:
+      gpuPrice:
         type: integer
         example: 200
-      day:
+      dayPrice:
         type: integer
         example: 100
       description:
@@ -856,81 +882,49 @@ definitions:
   form:
     type: object
     required:
-    - ownerUserUUID
-    - accessTime
-    - reason
-    - name
-    - phone
-    - email
-    - charge
+    - userUUID
+    - contactName
+    - contactEmail
+    - contactPhone
     - projectName
-    - irbNumber
+    - irbID
     - fundingSource
-    - projectSchedule
     - trainingModelSource
     - trainingModelDiskSize
     - trainingEnvironment
-    - numGPUs
+    - numberOfGPU
     - language
+    - projectSchedule
     - expectTime
+    - reason
+    - charge
     properties:
       id:
         type: string
-        format: uuid
+        example: ca123141dac1
         description: Auto genearate by db
-      ownerUserUUID:
+      userUUID:
         type: string
         format: uuid
-        example: u00001
-      accessTime:
-        type: string
-        example: '2018-09-25T11:33:48.000'
-        description: ISODate
-      active:
-        type: string
-        example: 0
-        description: "0 is reject, 1 is inactive, 2 is active"
-      reason:
-        type: string
-        example: 'The project need'
-      name:
+        example: u00002
+      contactName:
         type: string
         example: 'John'
-      phone:
-        type: string
-        example: 0912345678
-      email:
+      contactEmail:
         type: string
         example: user1@test.com
-      charge:
-        type: object
-        properties:
-          expect:
-            type: integer
-            example: 1500
-          actual:
-            type: integer
-            example: 1000
+      contactPhone:
+        type: string
+        example: 0912345678
       projectName:
         type: string
         example: 'CGMH Project'
-      irbNumber:
+      irbID:
         type: string
         example: irb0001
       fundingSource:
         type: string
-        exmpale: 'CHMH'
-      projectSchedule:
-        type: object
-        properties:
-          startDate:
-            type: string
-            format: date
-            example: '2018-09-01'
-          endDate:
-            type: string
-            format: date
-            example: '2018-09-30'
+        exmpale: 'CGMH'
       modelArchitecture:
         type: string
         example: 'CNN'
@@ -958,21 +952,21 @@ definitions:
       trainingModelDiskSize:
         type: integer
         example: 100
-      dataType:
-        type: string
-        example: 'Image'
       trainingModelData:
         type: integer
         example: 12000
       trainingEnvironment:
         type: string
         example: 'Tensorflow'
-      numGPUs:
-        type: integer
-        exmpale: 2
       trainingType:
         type: string
         example: 'Supervised'
+      dataType:
+        type: string
+        example: 'Image'
+      numberOfGPU:
+        type: integer
+        exmpale: 2
       language:
         type: string
         example: 'Python'
@@ -987,6 +981,54 @@ definitions:
             type: string
             format: date
             example: '2018-09-16'
+      projectSchedule:
+        type: object
+        properties:
+          startDate:
+            type: string
+            format: date
+            example: '2018-09-01'
+          endDate:
+            type: string
+            format: date
+            example: '2018-09-30'
+      charge:
+        type: object
+        properties:
+          expect:
+            type: integer
+            example: 1500
+          actual:
+            type: integer
+            example: 1000
+      reason:
+        type: string
+        example: 'Run my training model'
+      state:
+        type: string
+        example: Reject
+        description: "Reject, Inactive and Active"
+      lastUpdateTime:
+        type: string
+        example: '2018-09-25T11:33:48.000'
+        description: ISODate
+      creationTime:
+        type: string
+        example: '2018-09-25T11:33:48.000'
+        description: ISODate
+  form_status:
+    type: object
+    required:
+    - formID
+    - state
+    properties:
+      formID:
+        type: string
+        example: ca123141dac1
+      state:
+        type: string
+        example: Reject
+        description: "Reject, Inactive and Active"
 # Components
 components:
   securitySchemes:

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 )
 
 type Flag struct {
@@ -77,7 +78,7 @@ func (d *Mongo) Pipe(collection string, pipeline, result interface{}) error {
 func (d *Mongo) Update(collection string, query, update interface{}) error {
 	ms, c := d.connect(collection)
 	defer ms.Close()
-	return c.Update(query, update)
+	return c.Update(query, bson.M{"$set": update})
 }
 
 func (d *Mongo) Remove(collection string, query interface{}) error {

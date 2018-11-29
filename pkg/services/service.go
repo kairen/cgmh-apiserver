@@ -17,6 +17,7 @@ const (
 	CollectionUserPoint    = "UserPoint"
 	CollectionLevel        = "Level"
 	CollectionForm         = "Form"
+	CollectionFormStatus   = "FormStatus"
 	CollectionPointHistory = "PointHistory"
 )
 

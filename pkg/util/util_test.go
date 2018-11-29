@@ -17,3 +17,12 @@ func TestGetEnv(t *testing.T) {
 	v = GetEnv("GET_ENV2", "Test123")
 	assert.Equal(t, expected, v)
 }
+
+func TestElapsedDay(t *testing.T) {
+	expected := 12
+	start := "2018-09-04"
+	end := "2018-09-16"
+
+	ed := ElapsedDay(start, end)
+	assert.Equal(t, expected, ed)
+}
