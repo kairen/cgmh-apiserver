@@ -101,7 +101,7 @@ func (h *UserHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	stat := &model.UserStatus{}
-	if err := c.ShouldBindJSON(&stat); err != nil || !stat.Validate() {
+	if err := c.ShouldBindJSON(&stat); err != nil {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}

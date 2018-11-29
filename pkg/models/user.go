@@ -20,7 +20,7 @@ func (u *User) IsAdmin() bool {
 }
 
 func (u *User) Validate() bool {
-	if u.UUID == "" || u.Email == "" || u.Name == "" {
+	if u.Email == "" || u.Name == "" {
 		return false
 	}
 	return true
@@ -40,7 +40,7 @@ type UserRole struct {
 }
 
 func (ur *UserRole) Validate() bool {
-	if ur.UserUUID == "" || ur.Name == "" {
+	if ur.Name == "" {
 		return false
 	}
 	return true
@@ -58,13 +58,6 @@ type UserStatus struct {
 	Block    bool   `bson:"block" json:"block" binding:"required"`
 }
 
-func (us *UserStatus) Validate() bool {
-	if us.UserUUID == "" {
-		return false
-	}
-	return true
-}
-
 const LevelNone = "None"
 
 type UserLevel struct {
@@ -73,7 +66,7 @@ type UserLevel struct {
 }
 
 func (ul *UserLevel) Validate() bool {
-	if ul.UserUUID == "" || ul.Name == "" {
+	if ul.Name == "" {
 		return false
 	}
 	return true

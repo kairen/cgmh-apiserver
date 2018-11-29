@@ -69,7 +69,7 @@ type FormStatus struct {
 }
 
 func (fs *FormStatus) Validate() bool {
-	if fs.FormID == "" || fs.State == "" {
+	if fs.State == "" {
 		return false
 	}
 	return true
