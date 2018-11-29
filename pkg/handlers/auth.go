@@ -120,8 +120,7 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 }
 
 func (h *AuthHandler) ForceReset(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 

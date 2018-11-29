@@ -13,8 +13,7 @@ type LevelHandler struct {
 }
 
 func (h *LevelHandler) List(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -27,8 +26,7 @@ func (h *LevelHandler) List(c *gin.Context) {
 }
 
 func (h *LevelHandler) Create(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -51,8 +49,7 @@ func (h *LevelHandler) Create(c *gin.Context) {
 }
 
 func (h *LevelHandler) Update(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -86,8 +83,7 @@ func (h *LevelHandler) Update(c *gin.Context) {
 }
 
 func (h *LevelHandler) Delete(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 

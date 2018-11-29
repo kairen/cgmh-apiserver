@@ -27,8 +27,7 @@ func (h *UserHandler) Get(c *gin.Context) {
 }
 
 func (h *UserHandler) List(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -59,8 +58,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 }
 
 func (h *UserHandler) Delete(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -80,8 +78,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateRole(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -99,8 +96,7 @@ func (h *UserHandler) UpdateRole(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateStatus(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -118,8 +114,7 @@ func (h *UserHandler) UpdateStatus(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateLevel(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -142,8 +137,7 @@ func (h *UserHandler) UpdateLevel(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdatePoint(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 

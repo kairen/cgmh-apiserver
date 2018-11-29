@@ -84,6 +84,14 @@ func isAdmin(c *gin.Context, svc *service.DataAccess) bool {
 	return true
 }
 
+func checkAdmin(c *gin.Context, svc *service.DataAccess) bool {
+	if !isAdmin(c, svc) {
+		http.Forbidden(c, http.ErrorUserPermission)
+		return false
+	}
+	return true
+}
+
 func checkUserUUID(c *gin.Context, svc *service.DataAccess, userUUID string) bool {
 	if !isAdmin(c, svc) {
 		uuid, err := getUserUUIDByJWT(c)

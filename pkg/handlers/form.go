@@ -122,8 +122,7 @@ func (h *FormHandler) Update(c *gin.Context) {
 }
 
 func (h *FormHandler) UpdateStatus(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
@@ -141,8 +140,7 @@ func (h *FormHandler) UpdateStatus(c *gin.Context) {
 }
 
 func (h *FormHandler) Delete(c *gin.Context) {
-	if !isAdmin(c, h.svc) {
-		http.Forbidden(c, http.ErrorUserPermission)
+	if !checkAdmin(c, h.svc) {
 		return
 	}
 
