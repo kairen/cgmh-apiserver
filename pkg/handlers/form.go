@@ -90,7 +90,13 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if !checkUserUUID(c, h.svc, form.UserUUID) {
+	f, err := h.svc.Form.FindByID(form.ID.Hex())
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if !checkUserUUID(c, h.svc, f.UserUUID) {
 		return
 	}
 
