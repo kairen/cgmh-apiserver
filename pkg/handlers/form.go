@@ -72,8 +72,6 @@ func (h *FormHandler) Create(c *gin.Context) {
 	expect := h.calculateCharge(form, level)
 	form.Charge.Expect = expect
 	form.Charge.Actual = expect
-	form.CreationTime = util.NowTime()
-	form.LastUpdateTime = util.NowTime()
 	if err := h.svc.Form.Insert(form); err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -116,7 +114,6 @@ func (h *FormHandler) Update(c *gin.Context) {
 	}
 
 	form.Charge.Expect = h.calculateCharge(form, level)
-	form.LastUpdateTime = util.NowTime()
 	if err := h.svc.Form.Update(form); err != nil {
 		http.InternalServerError(c, err)
 		return

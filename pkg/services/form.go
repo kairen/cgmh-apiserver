@@ -3,6 +3,7 @@ package service
 import (
 	"inwinstack/cgmh/apiserver/pkg/db"
 	"inwinstack/cgmh/apiserver/pkg/models"
+	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -36,6 +37,8 @@ func (svc *FormService) Insert(form *model.Form) error {
 	}
 
 	form.ID = bson.NewObjectId()
+	form.CreationTime = util.NowTime()
+	form.LastUpdateTime = util.NowTime()
 	if err := svc.db.Insert(svc.collection, form); err != nil {
 		return err
 	}
@@ -75,6 +78,7 @@ func (svc *FormService) FindByID(id string) (*model.Form, error) {
 }
 
 func (svc *FormService) Update(form *model.Form) error {
+	form.LastUpdateTime = util.NowTime()
 	if err := svc.db.Update(svc.collection, bson.M{"_id": form.ID}, form); err != nil {
 		return err
 	}
