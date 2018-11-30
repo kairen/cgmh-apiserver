@@ -9,6 +9,7 @@ import (
 	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 type AuthHandler struct {
@@ -45,7 +46,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := util.GenerateToken(user.Email, user.UUID, 1*time.Hour)
+	expireTime := time.Hour * time.Duration(viper.GetInt("global.jwtExpireHour"))
+	token, err := util.GenerateToken(user.Email, user.UUID, expireTime)
 	if err != nil {
 		http.InternalServerError(c, err)
 		return

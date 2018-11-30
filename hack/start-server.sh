@@ -20,10 +20,7 @@ docker run -d -p 27017:27017 \
 # Start API server
 docker run -d -p 8080:8080 \
 	--network test \
-	-e INIT_ADMIN_EMAIL="admin@inwinstack.com" \
-	-e INIT_ADMIN_PASSWORD="r00tme" \
+	-v $(PWD)/conf/config.yml:/etc/cgmh/config.yml \
 	--name cgmh-apiserver \
 	registry.gitlab.com/inwinstack/cgmh/apiserver:v0.1.0 \
-	  --db-host=mgo.test:27017 \
-	  --db-password=passw0rd \
-	  --init
+	  --config /etc/cgmh/config.yml

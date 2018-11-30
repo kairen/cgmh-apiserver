@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"io/ioutil"
 
 	"log"
 	"net/http"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	flag "github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -25,41 +28,35 @@ const (
 )
 
 var (
-	address    string
-	origins    []string
-	enableCORS bool
-	initAdmin  bool
-	swagger    bool
-
-	// Database infos
-	dbHost   string
-	dbSource string
-	dbUser   string
-	dbPasswd string
-	dbName   string
+	config string
 )
 
 func parseFlags() {
-	flag.StringVarP(&address, "listen-addr", "", ":8080", "API server listen address.")
-	flag.StringSliceVarP(&origins, "allow-origins", "", nil, "List of allowed origins for CORS, comma separated.")
-	flag.BoolVarP(&initAdmin, "init", "", true, "Init admin user.")
-	flag.BoolVarP(&swagger, "enable-swagger", "", true, "Set to enable/disable swagger API.")
-	flag.StringVarP(&dbHost, "db-host", "", "127.0.0.1:27017", "Database host address.")
-	flag.StringVarP(&dbSource, "db-source", "", "admin", "Database source name.")
-	flag.StringVarP(&dbUser, "db-user", "", "root", "Database user name.")
-	flag.StringVarP(&dbPasswd, "db-password", "", "", "Database user password.")
-	flag.StringVarP(&dbName, "db-name", "", "CGMH", "Database name.")
+	flag.StringVarP(&config, "config", "", "", "Absolute path to the config file.")
 	flag.Parse()
+}
+
+func loadConfig() {
+	if config == "" {
+		log.Fatal("Must be set config path from the flag.")
+	}
+
+	content, err := ioutil.ReadFile(config)
+	if err != nil {
+		log.Fatalf("Can't not load config: %+v.", err)
+	}
+	viper.SetConfigType("yaml")
+	viper.ReadConfig(bytes.NewBuffer(content))
 }
 
 func initDatabase() *db.Mongo {
 	log.Printf("Connecting database...")
 	f := &db.Flag{
-		Host:     dbHost,
-		Source:   dbSource,
-		User:     dbUser,
-		Password: dbPasswd,
-		DB:       dbName,
+		Host:     viper.GetString("db.host"),
+		Source:   viper.GetString("db.source"),
+		User:     viper.GetString("db.user"),
+		Password: viper.GetString("db.password"),
+		DB:       viper.GetString("db.name"),
 	}
 
 	// Wait for Connecting database
@@ -77,20 +74,23 @@ func main() {
 	parseFlags()
 	log.SetFlags(log.LstdFlags)
 
+	// Load config to viper
+	loadConfig()
+
 	db := initDatabase()
 	svc := service.New(db)
 	r := router.New(svc)
 	s := &http.Server{
-		Addr:           address,
+		Addr:           viper.GetString("global.listen"),
 		Handler:        r.GetEngine(),
 		ReadTimeout:    readTimeout,
 		WriteTimeout:   writeTimeout,
 		MaxHeaderBytes: maxHeaderBytes,
 	}
 
-	if origins != nil {
+	if viper.GetStringSlice("global.allowOrigins") != nil {
 		config := cors.Config{
-			AllowOrigins:     origins,
+			AllowOrigins:     viper.GetStringSlice("global.allowOrigins"),
 			AllowMethods:     []string{"GET", "POST", "PUT", "HEAD"},
 			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
 			ExposeHeaders:    []string{"Content-Length"},
@@ -100,14 +100,20 @@ func main() {
 		r.SetCORS(config)
 	}
 
-	// Init admin user and handlers
-	if initAdmin {
-		log.Println("Server initing admin...")
-		if err := svc.InitAdminUser(); err != nil {
-			log.Fatal("Server initing error:", err)
-		}
+	// Init admin, levels and handlers
+	if err := svc.CreateConfig(); err != nil {
+		log.Fatal("Server creatint db config error:", err)
 	}
-	r.LinkSwaggerAPI(swagger)
+
+	if err := svc.InitLevels(); err != nil {
+		log.Fatal("Server initing levels error:", err)
+	}
+
+	if err := svc.InitAdmin(); err != nil {
+		log.Fatal("Server initing admin error:", err)
+	}
+
+	r.LinkSwaggerAPI(viper.GetBool("global.swagger"))
 	r.LinkHandlers()
 
 	go func() {

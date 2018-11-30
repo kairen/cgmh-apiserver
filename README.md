@@ -20,12 +20,5 @@ $ docker run -d -p 27017:27017 \
     --name mgo \
     mongo:3.6
 
-$ export INIT_ADMIN_EMAIL=admin@inwinstack.com
-$ export INIT_ADMIN_PASSWORD=r00tme
-$ go run cmd/main.go \
-    --db-host=127.0.0.1:27017 \
-    --db-name=CGMH \
-    --db-user=root \
-    --db-password=passw0rd \
-    --init
+$ go run cmd/main.go --config $(PWD)/conf/config.yml
 ```
