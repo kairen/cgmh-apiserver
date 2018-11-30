@@ -42,6 +42,15 @@ func (svc *LevelService) FindByID(id string) (*model.Level, error) {
 	return result, nil
 }
 
+func (svc *LevelService) FindDefault() (*model.Level, error) {
+	result := &model.Level{}
+	query := bson.M{"default": true}
+	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (svc *LevelService) FindAll() ([]model.Level, error) {
 	result := []model.Level{}
 	if err := svc.db.FindAll(svc.collection, nil, nil, &result); err != nil {

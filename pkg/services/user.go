@@ -41,6 +41,11 @@ func (svc *UserService) getRelationalObjects(user *model.User) error {
 }
 
 func (svc *UserService) Insert(user *model.User) error {
+	level, err := svc.level.FindDefault()
+	if err != nil {
+		return err
+	}
+
 	id, err := svc.counter.Increase("user-serial-id")
 	if err != nil {
 		return err
@@ -48,6 +53,7 @@ func (svc *UserService) Insert(user *model.User) error {
 
 	user.UUID = fmt.Sprintf("u%05d", id)
 	user.Default()
+	user.LevelID = level.ID
 	if err := svc.db.Insert(svc.collection, user); err != nil {
 		return err
 	}
