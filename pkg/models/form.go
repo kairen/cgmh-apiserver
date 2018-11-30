@@ -63,6 +63,10 @@ func (f *Form) Validate() bool {
 	return true
 }
 
+func (f *Form) CanUpdate() bool {
+	return f.State == FormInactiveState
+}
+
 type FormStatus struct {
 	FormID bson.ObjectId `bson:"formID" json:"formID" binding:"required"`
 	State  FormState     `bson:"state" json:"state" binding:"required"`

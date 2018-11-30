@@ -21,4 +21,5 @@ var (
 	ErrorResourceNotFound = errors.New("The resource not found")
 	ErrorResourceRefer    = errors.New("This resource has a reference object using it")
 	ErrorDeposit          = errors.New("There was an error in your deposit. You have not enough points")
+	ErrorFromState        = errors.New("This form has been activated or rejected")
 )

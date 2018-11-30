@@ -94,8 +94,22 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if !checkUserUUID(c, h.svc, f.UserUUID) {
-		return
+	if !isAdmin(c, h.svc) {
+		uuid, err := getUserUUIDByJWT(c)
+		if err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+
+		if uuid != f.UserUUID {
+			http.Forbidden(c, http.ErrorUserPermission)
+			return
+		}
+
+		if !f.CanUpdate() {
+			http.Forbidden(c, http.ErrorFromState)
+			return
+		}
 	}
 
 	user, err := h.svc.User.FindByUUID(form.UserUUID)
