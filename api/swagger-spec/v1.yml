@@ -802,6 +802,9 @@ definitions:
       phone:
         type: string
         example: 0912345678
+      level:
+        type: string
+        example: "Level 1"
       levelID:
         type: string
         example: lv00001

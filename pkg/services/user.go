@@ -13,13 +13,28 @@ type UserService struct {
 	collection string
 	password   *UserPasswordService
 	counter    *CounterService
+	level      *LevelService
 }
 
-func newUserService(db *db.Mongo) *UserService {
+func newUserService(db *db.Mongo, level *LevelService) *UserService {
 	user := &UserService{db: db, collection: CollectionUser}
 	user.counter = newCounterService(db)
 	user.password = newUserPasswordService(db)
+	user.level = level
 	return user
+}
+
+func (svc *UserService) getRelationalObjects(user *model.User) error {
+	if user.LevelID == "" {
+		return nil
+	}
+
+	level, err := svc.level.FindByID(user.LevelID)
+	if err != nil {
+		return err
+	}
+	user.Level = level.Name
+	return nil
 }
 
 func (svc *UserService) Insert(user *model.User) error {
@@ -45,6 +60,12 @@ func (svc *UserService) FindAll() ([]model.User, error) {
 	if err := svc.db.FindAll(svc.collection, nil, nil, &result); err != nil {
 		return nil, err
 	}
+
+	for index := range result {
+		if err := svc.getRelationalObjects(&result[index]); err != nil {
+			return nil, err
+		}
+	}
 	return result, nil
 }
 
@@ -54,6 +75,10 @@ func (svc *UserService) FindByEmail(email string) (*model.User, error) {
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
 		return nil, err
 	}
+
+	if err := svc.getRelationalObjects(result); err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
@@ -61,6 +86,10 @@ func (svc *UserService) FindByUUID(uuid string) (*model.User, error) {
 	result := &model.User{}
 	query := bson.M{"uuid": uuid}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
+		return nil, err
+	}
+
+	if err := svc.getRelationalObjects(result); err != nil {
 		return nil, err
 	}
 	return result, nil

@@ -30,11 +30,10 @@ type DataAccess struct {
 
 func New(db *db.Mongo) *DataAccess {
 	da := &DataAccess{db: db}
-	user := newUserService(db)
-	da.User = user
-	da.Auth = newAuthService(db, user)
-	da.Form = newFormService(db, user)
 	da.Level = newLevelService(db)
+	da.User = newUserService(db, da.Level)
+	da.Auth = newAuthService(db, da.User)
+	da.Form = newFormService(db, da.User)
 	da.Point = newPointService(db)
 	return da
 }
