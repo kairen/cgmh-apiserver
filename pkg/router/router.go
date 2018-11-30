@@ -73,6 +73,7 @@ func (r *Router) LinkHandlers() {
 		apiv1.DELETE("/form", r.handler.Form.Delete)
 
 		apiv1.GET("/level", r.handler.Level.List)
+		apiv1.GET("/level/:id", r.handler.Level.Get)
 		apiv1.POST("/level", r.handler.Level.Create)
 		apiv1.PUT("/level", r.handler.Level.Update)
 		apiv1.DELETE("/level", r.handler.Level.Delete)

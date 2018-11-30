@@ -8,22 +8,36 @@ type User struct {
 	Unit     string   `bson:"unit" json:"unit"`
 	JobTitle string   `bson:"jobTitle" json:"jobTitle"`
 	Phone    string   `bson:"phone" json:"phone"`
-	Level    string   `bson:"level,omitempty" json:"level"`
-	Point    int      `bson:"point,omitempty" json:"point"`
-	Active   bool     `bson:"active,omitempty" json:"active"`
-	Block    bool     `bson:"block,omitempty" json:"block"`
-	Role     RoleType `bson:"role,omitempty" json:"role"`
+	LevelID  string   `bson:"levelID" json:"levelID"`
+	Point    int      `bson:"point" json:"point"`
+	Active   bool     `bson:"active" json:"active"`
+	Block    bool     `bson:"block" json:"block"`
+	Role     RoleType `bson:"role" json:"role"`
+}
+
+func (u *User) Default() {
+	u.Point = 0
+	u.Active = false
+	u.Block = false
+	u.Role = RoleUser
+	u.LevelID = ""
 }
 
 func (u *User) IsAdmin() bool {
 	return u.Role == RoleAdmin
 }
 
-func (u *User) Validate() bool {
-	if u.Email == "" || u.Name == "" {
-		return false
-	}
-	return true
+type UserPost struct {
+	UUID     string `bson:"uuid" json:"uuid"`
+	Name     string `bson:"name" json:"name"`
+	Agency   string `bson:"agency" json:"agency"`
+	Unit     string `bson:"unit" json:"unit"`
+	JobTitle string `bson:"jobTitle" json:"jobTitle"`
+	Phone    string `bson:"phone" json:"phone"`
+}
+
+func (up *UserPost) Validate() bool {
+	return !(up.Name == "")
 }
 
 type RoleType string
@@ -35,25 +49,25 @@ const (
 )
 
 type UserRole struct {
-	UserUUID string   `bson:"userUUID" json:"userUUID" binding:"required"`
-	Name     RoleType `bson:"name" json:"name" binding:"required"`
+	UserUUID string   `bson:"userUUID,omitempty" json:"userUUID,omitempty" binding:"required"`
+	Role     RoleType `bson:"role" json:"role" binding:"required"`
 }
 
 func (ur *UserRole) Validate() bool {
-	if ur.Name == "" {
+	if ur.Role == "" {
 		return false
 	}
 	return true
 }
 
 func (role *UserRole) ValidateRole() {
-	if role.Name != RoleAdmin && role.Name != RoleUser {
-		role.Name = RoleUser
+	if role.Role != RoleAdmin && role.Role != RoleUser {
+		role.Role = RoleUser
 	}
 }
 
 type UserStatus struct {
-	UserUUID string `bson:"userUUID" json:"userUUID" binding:"required"`
+	UserUUID string `bson:"userUUID,omitempty" json:"userUUID,omitempty" binding:"required"`
 	Active   bool   `bson:"active" json:"active" binding:"required"`
 	Block    bool   `bson:"block" json:"block" binding:"required"`
 }
@@ -61,15 +75,20 @@ type UserStatus struct {
 const LevelNone = "None"
 
 type UserLevel struct {
-	UserUUID string `bson:"userUUID" json:"userUUID" binding:"required"`
-	Name     string `bson:"name" json:"name" binding:"required"`
+	UserUUID string `bson:"userUUID,omitempty" json:"userUUID,omitempty" binding:"required"`
+	LevelID  string `bson:"levelID" json:"levelID" binding:"required"`
 }
 
 func (ul *UserLevel) Validate() bool {
-	if ul.Name == "" {
+	if ul.UserUUID == "" || ul.LevelID == "" {
 		return false
 	}
 	return true
+}
+
+type UserPoint struct {
+	UserUUID string `bson:"userUUID,omitempty" json:"userUUID,omitempty"`
+	Point    int    `bson:"point" json:"pint"`
 }
 
 type UserPassword struct {

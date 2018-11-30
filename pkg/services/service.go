@@ -10,11 +10,7 @@ import (
 const (
 	CollectionCounter      = "Counter"
 	CollectionUser         = "User"
-	CollectionUserRole     = "UserRole"
-	CollectionUserStatus   = "UserStatus"
 	CollectionUserPassword = "UserPassword"
-	CollectionUserLevel    = "UserLevel"
-	CollectionUserPoint    = "UserPoint"
 	CollectionLevel        = "Level"
 	CollectionForm         = "Form"
 	CollectionFormStatus   = "FormStatus"
@@ -70,7 +66,7 @@ func (svc *DataAccess) InitAdminUser() error {
 			return err
 		}
 
-		role := &model.UserRole{UserUUID: user.UUID, Name: model.RoleAdmin}
+		role := &model.UserRole{UserUUID: user.UUID, Role: model.RoleAdmin}
 		if err := svc.User.UpdateRole(role); err != nil {
 			return err
 		}

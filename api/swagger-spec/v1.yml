@@ -459,6 +459,29 @@ paths:
           description: 'Not Found'
         '500':
           description: 'Internal Server Error'
+  "/api/v1/level/{id}":
+    get:
+      tags:
+      - Level
+      summary: Get level by ID
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                "$ref": "#/definitions/level"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
   "/api/v1/pointhistory":
     get:
       tags:
@@ -615,6 +638,29 @@ paths:
           description: 'Unauthorized'
         '500':
           description: 'Internal Server Error'
+  "/api/v1/form/{id}":
+    get:
+      tags:
+      - Form
+      summary: Get form by ID
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: ok
+              code:
+                type: integer
+                example: 200
+              data:
+                "$ref": "#/definitions/form"
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
   "/api/v1/formstatus":
     put:
       tags:
@@ -716,8 +762,8 @@ definitions:
     properties:
       id:
         type: string
-        format: uuid
-        description: Auto genearate by db
+        example: lv00003
+        description: Auto genearate by server
       name:
         type: string
         example: 'LEVEL 3'
@@ -756,9 +802,9 @@ definitions:
       phone:
         type: string
         example: 0912345678
-      level:
+      levelID:
         type: string
-        example: Level 1
+        example: lv00001
       point:
         type: integer
         example: 5000
@@ -830,7 +876,7 @@ definitions:
         format: uuid
         example: u00001
         description: Auto genearate by server
-      name:
+      role:
         type: string
         example: Admin
   user_level:
@@ -838,12 +884,11 @@ definitions:
     properties:
       userUUID:
         type: string
-        format: uuid
         example: u00001
         description: Auto genearate by server
-      name:
+      levelID:
         type: string
-        example: 'Level 1'
+        example: lv00001
   user_point:
     type: object
     required:

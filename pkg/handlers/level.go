@@ -12,6 +12,15 @@ type LevelHandler struct {
 	svc *service.DataAccess
 }
 
+func (h *LevelHandler) Get(c *gin.Context) {
+	level, err := h.svc.Level.FindByID(c.Param("id"))
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, level)
+}
+
 func (h *LevelHandler) List(c *gin.Context) {
 	if !checkAdmin(c, h.svc) {
 		return
@@ -36,11 +45,6 @@ func (h *LevelHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if h.svc.Level.IsExistByName(level.Name) {
-		http.BadRequest(c, http.ErrorResourceExist)
-		return
-	}
-
 	if err := h.svc.Level.Insert(level); err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -59,23 +63,7 @@ func (h *LevelHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if h.svc.Level.IsExistByName(level.Name) {
-		http.BadRequest(c, http.ErrorResourceExist)
-		return
-	}
-
-	oldLevel, err := h.svc.Level.FindByID(level.ID.Hex())
-	if err != nil {
-		http.BadRequest(c, http.ErrorResourceNotFound)
-		return
-	}
-
 	if err := h.svc.Level.Update(level); err != nil {
-		http.InternalServerError(c, err)
-		return
-	}
-
-	if err := h.svc.User.UpdateLevelsByName(oldLevel.Name, level.Name); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -95,14 +83,8 @@ func (h *LevelHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	level, err := h.svc.Level.FindByID(obj.ID)
-	if err != nil {
-		http.BadRequest(c, http.ErrorResourceNotFound)
-		return
-	}
-
-	userLevels, _ := h.svc.User.FindUserLevels(level.Name)
-	if len(userLevels) > 0 {
+	users, err := h.svc.User.FindUsersByLevelID(obj.ID)
+	if len(users) > 0 || err != nil {
 		http.BadRequest(c, http.ErrorResourceRefer)
 		return
 	}

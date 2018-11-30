@@ -40,7 +40,7 @@ func (h *UserHandler) List(c *gin.Context) {
 }
 
 func (h *UserHandler) Update(c *gin.Context) {
-	user := &model.User{}
+	user := &model.UserPost{}
 	if err := c.ShouldBindJSON(&user); err != nil || !user.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
@@ -55,26 +55,6 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 	http.Success(c, user)
-}
-
-func (h *UserHandler) Delete(c *gin.Context) {
-	if !checkAdmin(c, h.svc) {
-		return
-	}
-
-	obj := &struct {
-		UUID string `json:"uuid" binding:"required"`
-	}{}
-	if err := c.ShouldBindJSON(&obj); err != nil || obj.UUID == "" {
-		http.BadRequest(c, http.ErrorPayloadField)
-		return
-	}
-
-	if err := h.svc.User.RemoveByUUID(obj.UUID); err != nil {
-		http.InternalServerError(c, err)
-		return
-	}
-	http.Success(c, nil)
 }
 
 func (h *UserHandler) UpdateRole(c *gin.Context) {
@@ -124,7 +104,7 @@ func (h *UserHandler) UpdateLevel(c *gin.Context) {
 		return
 	}
 
-	if !h.svc.Level.IsExistByName(userLevel.Name) {
+	if !h.svc.Level.IsExist(userLevel.LevelID) {
 		http.BadRequest(c, http.ErrorResourceNotFound)
 		return
 	}
@@ -171,4 +151,24 @@ func (h *UserHandler) UpdatePoint(c *gin.Context) {
 		return
 	}
 	http.Success(c, point)
+}
+
+func (h *UserHandler) Delete(c *gin.Context) {
+	if !checkAdmin(c, h.svc) {
+		return
+	}
+
+	obj := &struct {
+		UUID string `json:"uuid" binding:"required"`
+	}{}
+	if err := c.ShouldBindJSON(&obj); err != nil || obj.UUID == "" {
+		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	if err := h.svc.User.Remove(obj.UUID); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, nil)
 }

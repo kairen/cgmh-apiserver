@@ -63,7 +63,7 @@ func (h *FormHandler) Create(c *gin.Context) {
 		return
 	}
 
-	level, err := h.svc.Level.FindByName(user.Level)
+	level, err := h.svc.Level.FindByID(user.LevelID)
 	if err != nil {
 		http.InternalServerError(c, err)
 		return
@@ -118,7 +118,7 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
-	level, err := h.svc.Level.FindByName(user.Level)
+	level, err := h.svc.Level.FindByID(user.LevelID)
 	if err != nil {
 		http.InternalServerError(c, err)
 		return
