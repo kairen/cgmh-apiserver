@@ -143,6 +143,32 @@ func (h *FormHandler) UpdateStatus(c *gin.Context) {
 		return
 	}
 
+	if f.State == model.FormInactiveState && status.State == model.FormActiveState {
+		user, err := h.svc.User.FindByUUID(f.UserUUID)
+		if err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+
+		adminUUID, err := getUserUUIDByJWT(c)
+		if err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+
+		value := user.Point - f.Charge.Actual
+		if value < 0 {
+			http.BadRequest(c, http.ErrorDeposit)
+			return
+		}
+
+		point := &model.Point{UserUUID: user.UUID, AdminUUID: adminUUID, Value: -f.Charge.Actual}
+		if err := h.svc.User.UpdatePoint(point, value); err != nil {
+			http.InternalServerError(c, err)
+			return
+		}
+	}
+
 	if err := h.svc.Form.UpdateStatus(status); err != nil {
 		http.InternalServerError(c, err)
 		return

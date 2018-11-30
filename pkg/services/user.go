@@ -126,8 +126,8 @@ func (svc *UserService) UpdateLevel(level *model.UserLevel) error {
 	return svc.db.Update(svc.collection, bson.M{"uuid": level.UserUUID}, d)
 }
 
-func (svc *UserService) UpdatePoint(point *model.Point) error {
-	d := &model.UserPoint{Point: point.Value}
+func (svc *UserService) UpdatePoint(point *model.Point, deposit int) error {
+	d := &model.UserPoint{Point: deposit}
 	query := bson.M{"uuid": point.UserUUID}
 	if err := svc.db.Update(svc.collection, query, d); err != nil {
 		return err

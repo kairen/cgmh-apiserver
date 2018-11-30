@@ -138,8 +138,7 @@ func (h *UserHandler) UpdatePoint(c *gin.Context) {
 		return
 	}
 
-	deposit := &model.Point{UserUUID: point.UserUUID, AdminUUID: point.AdminUUID, Value: value}
-	if err := h.svc.User.UpdatePoint(deposit); err != nil {
+	if err := h.svc.User.UpdatePoint(point, value); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
