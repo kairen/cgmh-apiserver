@@ -88,7 +88,7 @@ func (ul *UserLevel) Validate() bool {
 
 type UserPoint struct {
 	UserUUID string `bson:"userUUID,omitempty" json:"userUUID,omitempty"`
-	Point    int    `bson:"point" json:"pint"`
+	Point    int    `bson:"point" json:"point"`
 }
 
 type UserPassword struct {
