@@ -66,13 +66,13 @@ func (svc *UserService) Insert(user *model.User) error {
 }
 
 func (svc *UserService) getRelationalObjects(user *model.User) error {
-	role, err := svc.role.FindOne(user.UUID)
+	role, err := svc.role.FindByUserUUID(user.UUID)
 	if err != nil {
 		return err
 	}
 	user.Role = role.Name
 
-	stat, err := svc.status.FindOne(user.UUID)
+	stat, err := svc.status.FindByUserUUID(user.UUID)
 	if err != nil {
 		return err
 	}

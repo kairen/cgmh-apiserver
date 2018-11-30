@@ -20,7 +20,7 @@ func (svc *UserStatusService) Insert(status *model.UserStatus) error {
 	return svc.db.Insert(svc.collection, status)
 }
 
-func (svc *UserStatusService) FindOne(uuid string) (*model.UserStatus, error) {
+func (svc *UserStatusService) FindByUserUUID(uuid string) (*model.UserStatus, error) {
 	result := &model.UserStatus{}
 	query := bson.M{"userUUID": uuid}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {

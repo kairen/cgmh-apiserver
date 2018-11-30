@@ -21,7 +21,7 @@ func (svc *UserRoleService) Insert(role *model.UserRole) error {
 	return svc.db.Insert(svc.collection, role)
 }
 
-func (svc *UserRoleService) FindOne(uuid string) (*model.UserRole, error) {
+func (svc *UserRoleService) FindByUserUUID(uuid string) (*model.UserRole, error) {
 	result := &model.UserRole{}
 	query := bson.M{"userUUID": uuid}
 	if err := svc.db.FindOne(svc.collection, query, nil, result); err != nil {
