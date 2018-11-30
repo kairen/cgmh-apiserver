@@ -4,7 +4,6 @@ import (
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/services"
-	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -141,12 +140,6 @@ func (h *UserHandler) UpdatePoint(c *gin.Context) {
 
 	deposit := &model.Point{UserUUID: point.UserUUID, AdminUUID: point.AdminUUID, Value: value}
 	if err := h.svc.User.UpdatePoint(deposit); err != nil {
-		http.InternalServerError(c, err)
-		return
-	}
-
-	point.Time = util.NowTime()
-	if err := h.svc.Point.Insert(point); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}

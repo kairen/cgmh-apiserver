@@ -94,22 +94,13 @@ func (h *FormHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if !isAdmin(c, h.svc) {
-		uuid, err := getUserUUIDByJWT(c)
-		if err != nil {
-			http.InternalServerError(c, err)
-			return
-		}
+	if !checkUserUUID(c, h.svc, f.UserUUID) {
+		return
+	}
 
-		if uuid != f.UserUUID {
-			http.Forbidden(c, http.ErrorUserPermission)
-			return
-		}
-
-		if !f.CanUpdate() {
-			http.Forbidden(c, http.ErrorFromState)
-			return
-		}
+	if !f.CanUpdate() {
+		http.BadRequest(c, http.ErrorFromState)
+		return
 	}
 
 	user, err := h.svc.User.FindByUUID(form.UserUUID)
@@ -141,6 +132,17 @@ func (h *FormHandler) UpdateStatus(c *gin.Context) {
 	status := &model.FormStatus{}
 	if err := c.ShouldBindJSON(&status); err != nil || !status.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	f, err := h.svc.Form.FindByID(status.FormID.Hex())
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if !f.CanUpdate() {
+		http.BadRequest(c, http.ErrorFromState)
 		return
 	}
 

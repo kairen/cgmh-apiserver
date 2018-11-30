@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"inwinstack/cgmh/apiserver/pkg/db"
 	"inwinstack/cgmh/apiserver/pkg/models"
+	"inwinstack/cgmh/apiserver/pkg/util"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -14,13 +15,15 @@ type UserService struct {
 	password   *UserPasswordService
 	counter    *CounterService
 	level      *LevelService
+	point      *PointService
 }
 
-func newUserService(db *db.Mongo, level *LevelService) *UserService {
+func newUserService(db *db.Mongo, level *LevelService, point *PointService) *UserService {
 	user := &UserService{db: db, collection: CollectionUser}
 	user.counter = newCounterService(db)
 	user.password = newUserPasswordService(db)
 	user.level = level
+	user.point = point
 	return user
 }
 
@@ -125,7 +128,13 @@ func (svc *UserService) UpdateLevel(level *model.UserLevel) error {
 
 func (svc *UserService) UpdatePoint(point *model.Point) error {
 	d := &model.UserPoint{Point: point.Value}
-	return svc.db.Update(svc.collection, bson.M{"uuid": point.UserUUID}, d)
+	query := bson.M{"uuid": point.UserUUID}
+	if err := svc.db.Update(svc.collection, query, d); err != nil {
+		return err
+	}
+
+	point.Time = util.NowTime()
+	return svc.point.Insert(point)
 }
 
 func (svc *UserService) Remove(uuid string) error {
