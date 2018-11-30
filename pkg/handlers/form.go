@@ -162,7 +162,11 @@ func (h *FormHandler) UpdateStatus(c *gin.Context) {
 			return
 		}
 
-		point := &model.Point{UserUUID: user.UUID, AdminUUID: adminUUID, Value: -f.Charge.Actual}
+		point := &model.Point{
+			UserUUID:  user.UUID,
+			AdminUUID: adminUUID,
+			FormID:    f.ID.Hex(),
+			Value:     -f.Charge.Actual}
 		if err := h.svc.User.UpdatePoint(point, value); err != nil {
 			http.InternalServerError(c, err)
 			return

@@ -4,6 +4,7 @@ type Point struct {
 	UserUUID  string `bson:"userUUID" json:"userUUID" binding:"required"`
 	AdminUUID string `bson:"adminUUID,omitempty" json:"adminUUID" binding:"required"`
 	Value     int    `bson:"value" json:"value" binding:"required"`
+	FormID    string `bson:"formID,omitempty" json:"formID,omitempty"`
 	Time      string `bson:"time,omitempty" json:"time,omitempty"`
 }
 
