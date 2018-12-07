@@ -482,6 +482,32 @@ paths:
           description: 'Unauthorized'
         '500':
           description: 'Internal Server Error'
+  "/api/v1/leveldefault":
+    put:
+      tags:
+      - Level
+      summary: 'Update level default'
+      security:
+        - BearerAuth: [admin]
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+            type: object
+            properties:
+              id:
+                type: string
+                example: lv00002
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Invalid Data'
+        '401':
+          description: 'Unauthorized'
+        '500':
+          description: 'Internal Server Error'
   "/api/v1/pointhistory":
     get:
       tags:
@@ -776,6 +802,9 @@ definitions:
       description:
         type: string
         example: 'Normal user'
+      default:
+        type: bool
+        example: false
   user:
     type: object
     properties:

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
+	"inwinstack/cgmh/apiserver/pkg/ldap"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/services"
 	"inwinstack/cgmh/apiserver/pkg/util"
@@ -13,7 +14,8 @@ import (
 )
 
 type AuthHandler struct {
-	svc *service.DataAccess
+	svc  *service.DataAccess
+	ldap *ldap.LDAP
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -85,6 +87,11 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		http.InternalServerError(c, err)
 		return
 	}
+
+	if err := h.ldap.AddUser(user, decode); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
 	http.Success(c, nil)
 }
 
@@ -92,6 +99,12 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 	reset := &model.Reset{}
 	if err := c.ShouldBindJSON(&reset); err != nil || !reset.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	user, err := h.svc.User.FindByEmail(reset.Email)
+	if err != nil {
+		http.BadRequest(c, http.ErrorUserNotFound)
 		return
 	}
 
@@ -114,7 +127,12 @@ func (h *AuthHandler) Reset(c *gin.Context) {
 	}
 
 	secret := util.MD5Encode(newBase)
-	if err := h.svc.Auth.Reset(reset.Email, secret); err != nil {
+	if err := h.svc.Auth.Reset(user.UUID, secret); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if err := h.ldap.ModifyPassword(user.UUID, oldBase, newBase); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}
@@ -132,7 +150,8 @@ func (h *AuthHandler) ForceReset(c *gin.Context) {
 		return
 	}
 
-	if !h.svc.User.IsExistByEmail(reset.Email) {
+	user, err := h.svc.User.FindByEmail(reset.Email)
+	if err != nil {
 		http.BadRequest(c, http.ErrorUserNotFound)
 		return
 	}
@@ -145,7 +164,12 @@ func (h *AuthHandler) ForceReset(c *gin.Context) {
 
 	encode := util.Base64Encode(hex)
 	secret := util.MD5Encode(hex)
-	if err := h.svc.Auth.Reset(reset.Email, secret); err != nil {
+	if err := h.svc.Auth.Reset(user.UUID, secret); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if err := h.ldap.ForceModifyPassword(user.UUID, hex); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}

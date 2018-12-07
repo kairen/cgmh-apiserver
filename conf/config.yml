@@ -2,14 +2,24 @@ global:
   listen: :8080
   jwtExpireHour: 1
   swagger: true
+  monitorURL: http://172.20.3.56:32359
   # allowOrigins:
   # - https://foo.com
+ldap:
+  protocol: tcp
+  host: 172.22.132.18:389
+  bind:
+    username: cn=admin,dc=cgmh,dc=org,dc=tw
+    password: password
+  dn: dc=cgmh,dc=org,dc=tw
+  userOU: accounts
 db:
   host: 127.0.0.1:27017
   source: admin
   user: root
   password: passw0rd
   name: CGMH
+# Admin user info
 admin:
   email: admin@inwinstack.com
   name: administrator
@@ -18,6 +28,7 @@ admin:
   unit: 'AI Team'
   jobTitle: Manager
   phone: '0800-092-000'
+# Default levels
 levels:
 - name: 'Level 0'
   gpuPrice: 0

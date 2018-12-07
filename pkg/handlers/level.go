@@ -58,7 +58,7 @@ func (h *LevelHandler) Update(c *gin.Context) {
 	}
 
 	level := &model.Level{}
-	if err := c.ShouldBindJSON(&level); err != nil || level.ID == "" {
+	if err := c.ShouldBindJSON(&level); err != nil || !level.Validate() {
 		http.BadRequest(c, http.ErrorPayloadField)
 		return
 	}
@@ -68,6 +68,37 @@ func (h *LevelHandler) Update(c *gin.Context) {
 		return
 	}
 	http.Success(c, level)
+}
+
+func (h *LevelHandler) UpdateDefault(c *gin.Context) {
+	if !checkAdmin(c, h.svc) {
+		return
+	}
+
+	obj := &struct {
+		ID string `json:"id" binding:"required"`
+	}{}
+	if err := c.ShouldBindJSON(&obj); err != nil || obj.ID == "" {
+		http.BadRequest(c, http.ErrorPayloadField)
+		return
+	}
+
+	level, err := h.svc.Level.FindDefault()
+	if err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if err := h.svc.Level.UpdateDefault(level.ID, false); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if err := h.svc.Level.UpdateDefault(obj.ID, true); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+	http.Success(c, nil)
 }
 
 func (h *LevelHandler) Delete(c *gin.Context) {

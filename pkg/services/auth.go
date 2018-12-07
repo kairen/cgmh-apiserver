@@ -36,14 +36,9 @@ func (svc *AuthService) VerifyAccount(email, password string) bool {
 	return svc.user.password.IsExist(user.UUID, password)
 }
 
-func (svc *AuthService) Reset(email, password string) error {
-	user, err := svc.user.FindByEmail(email)
-	if err != nil {
-		return err
-	}
-
+func (svc *AuthService) Reset(uuid, password string) error {
 	pwd := &model.UserPassword{
-		UserUUID: user.UUID,
+		UserUUID: uuid,
 		Secret:   password,
 	}
 	return svc.user.password.Update(pwd)

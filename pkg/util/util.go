@@ -20,5 +20,5 @@ func NowTime() string {
 func ElapsedDay(startDate string, endDate string) int {
 	st, _ := time.Parse("2006-01-02", startDate)
 	et, _ := time.Parse("2006-01-02", endDate)
-	return int(et.Sub(st).Hours() / 24)
+	return int(et.Sub(st).Hours()/24) + 1
 }
