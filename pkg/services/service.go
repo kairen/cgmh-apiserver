@@ -8,7 +8,6 @@ import (
 	"log"
 
 	"github.com/globalsign/mgo/bson"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -70,6 +69,20 @@ func (svc *DataAccess) findConfig() (*Config, error) {
 	return result, nil
 }
 
+func (svc *DataAccess) AlreadyInitAdmin() bool {
+	if config, err := svc.findConfig(); err == nil && config != nil {
+		return config.Admin
+	}
+	return false
+}
+
+func (svc *DataAccess) AlreadyInitLevel() bool {
+	if config, err := svc.findConfig(); err == nil && config != nil {
+		return config.Level
+	}
+	return false
+}
+
 func (svc *DataAccess) CreateConfig() error {
 	_, err := svc.findConfig()
 	if err != nil {
@@ -81,89 +94,74 @@ func (svc *DataAccess) CreateConfig() error {
 	return nil
 }
 
-func (svc *DataAccess) InitAdmin() error {
+func (svc *DataAccess) InitAdmin(reg *model.User, pwd string) error {
 	config, err := svc.findConfig()
 	if err != nil {
 		return err
 	}
 
-	if !config.Admin {
-		pwd := viper.GetString("admin.password")
-		secret := util.MD5Encode(pwd)
-		reg := &model.User{
-			Email:    viper.GetString("admin.email"),
-			Name:     viper.GetString("admin.name"),
-			Agency:   viper.GetString("admin.agency"),
-			Unit:     viper.GetString("admin.unit"),
-			JobTitle: viper.GetString("admin.jobTitle"),
-			Phone:    viper.GetString("admin.phone"),
+	secret := util.MD5Encode(pwd)
+	if !svc.User.IsExistByEmail(reg.Email) {
+		if err := svc.Auth.Register(reg, secret); err != nil {
+			return err
 		}
 
-		if !svc.User.IsExistByEmail(reg.Email) {
-			if err := svc.Auth.Register(reg, secret); err != nil {
-				return err
-			}
+		user, err := svc.User.FindByEmail(reg.Email)
+		if err != nil {
+			return err
+		}
+		stat := &model.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
+		if err := svc.User.UpdateStatus(stat); err != nil {
+			return err
+		}
 
-			user, err := svc.User.FindByEmail(reg.Email)
-			if err != nil {
-				return err
-			}
-			stat := &model.UserStatus{UserUUID: user.UUID, Block: false, Active: true}
-			if err := svc.User.UpdateStatus(stat); err != nil {
-				return err
-			}
+		role := &model.UserRole{UserUUID: user.UUID, Role: model.RoleAdmin}
+		if err := svc.User.UpdateRole(role); err != nil {
+			return err
+		}
 
-			role := &model.UserRole{UserUUID: user.UUID, Role: model.RoleAdmin}
-			if err := svc.User.UpdateRole(role); err != nil {
-				return err
-			}
+		log.Printf("Admin email: %s", reg.Email)
+		log.Printf("Admin password: %s", pwd)
 
-			log.Printf("Admin email: %s", reg.Email)
-			log.Printf("Admin password: %s", pwd)
-
-			config.Admin = true
-			if err := svc.updateConfig(config); err != nil {
-				return err
-			}
+		config.Admin = true
+		if err := svc.updateConfig(config); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func (svc *DataAccess) InitLevels() error {
+func (svc *DataAccess) InitLevels(objs interface{}) error {
 	config, err := svc.findConfig()
 	if err != nil {
 		return err
 	}
 
-	if !config.Level {
-		objs := viper.Get("levels")
-		for _, obj := range objs.([]interface{}) {
-			lv := map[string]interface{}{}
-			for k, v := range obj.(map[interface{}]interface{}) {
-				lv[k.(string)] = v
-			}
-
-			data, err := json.Marshal(lv)
-			if err != nil {
-				return err
-			}
-
-			level := &model.Level{}
-			if err := json.Unmarshal(data, &level); err != nil {
-				return err
-			}
-
-			if err := svc.Level.Insert(level); err != nil {
-				return err
-			}
-			log.Printf("Default level created: %s.\n", level.Name)
+	for _, obj := range objs.([]interface{}) {
+		lv := map[string]interface{}{}
+		for k, v := range obj.(map[interface{}]interface{}) {
+			lv[k.(string)] = v
 		}
 
-		config.Level = true
-		if err := svc.updateConfig(config); err != nil {
+		data, err := json.Marshal(lv)
+		if err != nil {
 			return err
 		}
+
+		level := &model.Level{}
+		if err := json.Unmarshal(data, &level); err != nil {
+			return err
+		}
+
+		if err := svc.Level.Insert(level); err != nil {
+			return err
+		}
+		log.Printf("Default level created: %s.\n", level.Name)
+	}
+
+	config.Level = true
+	if err := svc.updateConfig(config); err != nil {
+		return err
 	}
 	return nil
 }

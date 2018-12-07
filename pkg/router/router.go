@@ -34,6 +34,10 @@ func (r *Router) GetEngine() *gin.Engine {
 	return r.engine
 }
 
+func (r *Router) GetHandler() *handler.GlobalHandler {
+	return r.handler
+}
+
 func (r *Router) SetCORS(config cors.Config) {
 	r.engine.Use(cors.New(config))
 }
@@ -45,8 +49,9 @@ func (r *Router) LinkSwaggerAPI(swagger bool) {
 }
 
 func (r *Router) LinkHandlers() {
-	r.engine.GET("/version", r.handler.GetVersion)
-	r.engine.GET("/healthz", r.handler.GetHealthz)
+	r.engine.GET("/version", r.handler.Version)
+	r.engine.GET("/healthz", r.handler.Healthz)
+	r.engine.GET("/monitorurl", r.handler.MonitorURL)
 	r.engine.POST("/auth/login", r.handler.Auth.Login)
 	r.engine.POST("/auth/register", r.handler.Auth.Register)
 	r.engine.PUT("/auth/reset", r.handler.Auth.Reset)
@@ -77,6 +82,7 @@ func (r *Router) LinkHandlers() {
 		apiv1.POST("/level", r.handler.Level.Create)
 		apiv1.PUT("/level", r.handler.Level.Update)
 		apiv1.DELETE("/level", r.handler.Level.Delete)
+		apiv1.PUT("/leveldefault", r.handler.Level.UpdateDefault)
 
 		apiv1.GET("/pointhistory", r.handler.PointHistory.List)
 	}

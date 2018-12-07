@@ -63,6 +63,10 @@ func (svc *LevelService) Update(level *model.Level) error {
 	return svc.db.Update(svc.collection, bson.M{"_id": level.ID}, level)
 }
 
+func (svc *LevelService) UpdateDefault(id string, v bool) error {
+	return svc.db.Update(svc.collection, bson.M{"_id": id}, bson.M{"default": v})
+}
+
 func (svc *LevelService) Remove(id string) error {
 	return svc.db.Remove(svc.collection, bson.M{"_id": id})
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	http "inwinstack/cgmh/apiserver/pkg/httpwrapper"
+	"inwinstack/cgmh/apiserver/pkg/ldap"
 	"inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/services"
 
@@ -9,7 +10,8 @@ import (
 )
 
 type UserHandler struct {
-	svc *service.DataAccess
+	svc  *service.DataAccess
+	ldap *ldap.LDAP
 }
 
 func (h *UserHandler) Get(c *gin.Context) {
@@ -159,6 +161,11 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	}
 
 	if err := h.svc.User.Remove(obj.UUID); err != nil {
+		http.InternalServerError(c, err)
+		return
+	}
+
+	if err := h.ldap.DelUser(obj.UUID); err != nil {
 		http.InternalServerError(c, err)
 		return
 	}

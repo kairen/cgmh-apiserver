@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"inwinstack/cgmh/apiserver/pkg/db"
+	"inwinstack/cgmh/apiserver/pkg/ldap"
+	model "inwinstack/cgmh/apiserver/pkg/models"
 	"inwinstack/cgmh/apiserver/pkg/router"
 	"inwinstack/cgmh/apiserver/pkg/services"
 
@@ -59,7 +61,7 @@ func initDatabase() *db.Mongo {
 		DB:       viper.GetString("db.name"),
 	}
 
-	// Wait for Connecting database
+	// Wait for connecting database
 	for {
 		database, err := db.New(f)
 		if err == nil {
@@ -72,21 +74,71 @@ func initDatabase() *db.Mongo {
 
 func main() {
 	parseFlags()
-	log.SetFlags(log.LstdFlags)
-
 	// Load config to viper
 	loadConfig()
+	log.SetFlags(log.LstdFlags)
+
+	ldapFlag := &ldap.Flag{
+		Protocol: viper.GetString("ldap.protocol"),
+		Host:     viper.GetString("ldap.host"),
+		Username: viper.GetString("ldap.bind.username"),
+		Password: viper.GetString("ldap.bind.password"),
+		DN:       viper.GetString("ldap.dn"),
+		OU:       viper.GetString("ldap.userOU"),
+	}
+	ldapServer := ldap.NewServer(ldapFlag)
 
 	db := initDatabase()
 	svc := service.New(db)
+	if err := svc.CreateConfig(); err != nil {
+		log.Fatal("Server creating db config error:", err)
+	}
+
+	// Init the default levels
+	if !svc.AlreadyInitLevel() {
+		if err := svc.InitLevels(viper.Get("levels")); err != nil {
+			log.Fatal("Server initing levels error:", err)
+		}
+	}
+
+	// Init admin user
+	if !svc.AlreadyInitAdmin() {
+		pwd := viper.GetString("admin.password")
+		reg := &model.User{
+			Email:    viper.GetString("admin.email"),
+			Name:     viper.GetString("admin.name"),
+			Agency:   viper.GetString("admin.agency"),
+			Unit:     viper.GetString("admin.unit"),
+			JobTitle: viper.GetString("admin.jobTitle"),
+			Phone:    viper.GetString("admin.phone"),
+		}
+		if err := svc.InitAdmin(reg, pwd); err != nil {
+			log.Fatal("Server initing admin error:", err)
+		}
+
+		if err := ldapServer.AddOU(ldapFlag.OU, "User account OU."); err != nil {
+			log.Fatal("LDAP creating user account OU error:", err)
+		}
+
+		if err := ldapServer.AddUser(reg, pwd); err != nil {
+			log.Fatal("LDAP creating admin account error:", err)
+		}
+	}
+
 	r := router.New(svc)
-	s := &http.Server{
+	server := &http.Server{
 		Addr:           viper.GetString("global.listen"),
 		Handler:        r.GetEngine(),
 		ReadTimeout:    readTimeout,
 		WriteTimeout:   writeTimeout,
 		MaxHeaderBytes: maxHeaderBytes,
 	}
+
+	handler := r.GetHandler()
+	handler.SetLDAP(ldapServer)
+
+	r.LinkSwaggerAPI(viper.GetBool("global.swagger"))
+	r.LinkHandlers()
 
 	if viper.GetStringSlice("global.allowOrigins") != nil {
 		config := cors.Config{
@@ -100,25 +152,9 @@ func main() {
 		r.SetCORS(config)
 	}
 
-	// Init admin, levels and handlers
-	if err := svc.CreateConfig(); err != nil {
-		log.Fatal("Server creatint db config error:", err)
-	}
-
-	if err := svc.InitLevels(); err != nil {
-		log.Fatal("Server initing levels error:", err)
-	}
-
-	if err := svc.InitAdmin(); err != nil {
-		log.Fatal("Server initing admin error:", err)
-	}
-
-	r.LinkSwaggerAPI(viper.GetBool("global.swagger"))
-	r.LinkHandlers()
-
 	go func() {
 		log.Println("API server starting...")
-		if err := s.ListenAndServe(); err != nil {
+		if err := server.ListenAndServe(); err != nil {
 			log.Printf("listen: %s\n", err)
 		}
 	}()
@@ -132,7 +168,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := s.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil {
 		log.Fatal("Server shutdown:", err)
 	}
 	log.Println("Server exiting...")

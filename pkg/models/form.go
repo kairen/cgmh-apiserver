@@ -57,7 +57,7 @@ type Form struct {
 }
 
 func (f *Form) Validate() bool {
-	if f.ContactName == "" || f.ContactEmail == "" || f.ContactPhone == "" || f.NumberOfGPU <= 0 {
+	if f.ContactName == "" || f.ContactEmail == "" || f.ContactPhone == "" || f.NumberOfGPU < 0 {
 		return false
 	}
 	return true

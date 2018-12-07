@@ -10,7 +10,7 @@ type Level struct {
 }
 
 func (lv *Level) Validate() bool {
-	if lv.Name == "" || lv.DayPrice <= 0 || lv.GPUPrice <= 0 {
+	if lv.Name == "" || lv.DayPrice <= 0 || lv.Default {
 		return false
 	}
 	return true
