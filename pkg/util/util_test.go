@@ -19,7 +19,7 @@ func TestGetEnv(t *testing.T) {
 }
 
 func TestElapsedDay(t *testing.T) {
-	expected := 12
+	expected := 13
 	start := "2018-09-04"
 	end := "2018-09-16"
 
