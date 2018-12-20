@@ -18,7 +18,7 @@ spec:
         key: node-role.kubernetes.io/master
       containers:
       - name: apiserver
-        image: registry.gitlab.com/inwinstack/cgmh/apiserver:v0.2.0
+        image: registry.gitlab.com/inwinstack/cgmh/apiserver:v0.2.1
         args:
         - --config=/etc/cgmh/config.yml
         volumeMounts:
