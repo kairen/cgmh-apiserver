@@ -7,14 +7,17 @@ global:
   # - https://foo.com
 ldap:
   protocol: tcp
-  host: 172.22.132.18:389
+  host: 172.22.2.71:389
   bind:
     username: cn=admin,dc=cgmh,dc=org,dc=tw
-    password: password
+    password: p@ssw0rd
   dn: dc=cgmh,dc=org,dc=tw
   userOU: accounts
 db:
-  host: 127.0.0.1:27017
+  hosts:
+  - 172.22.2.71:27017
+  - 172.22.2.71:27018
+  - 172.22.2.71:27019
   source: admin
   user: root
   password: passw0rd

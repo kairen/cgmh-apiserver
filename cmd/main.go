@@ -54,7 +54,7 @@ func loadConfig() {
 func initDatabase() *db.Mongo {
 	log.Printf("Connecting database...")
 	f := &db.Flag{
-		Host:     viper.GetString("db.host"),
+		Hosts:    viper.GetString("db.hosts"),
 		Source:   viper.GetString("db.source"),
 		User:     viper.GetString("db.user"),
 		Password: viper.GetString("db.password"),

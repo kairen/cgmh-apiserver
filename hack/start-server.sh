@@ -22,5 +22,5 @@ docker run -d -p 8080:8080 \
 	--network test \
 	-v $(PWD)/conf/config.yml:/etc/cgmh/config.yml \
 	--name cgmh-apiserver \
-	registry.gitlab.com/inwinstack/cgmh/apiserver:v0.2.1 \
+	registry.gitlab.com/inwinstack/cgmh/apiserver:v0.3.0 \
 	  --config /etc/cgmh/config.yml
