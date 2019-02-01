@@ -8,7 +8,7 @@ import (
 )
 
 type Flag struct {
-	Host     string
+	Hosts    []string
 	Source   string
 	User     string
 	Password string
@@ -22,7 +22,7 @@ type Mongo struct {
 
 func New(flag *Flag) (*Mongo, error) {
 	dialInfo := &mgo.DialInfo{
-		Addrs:    []string{flag.Host},
+		Addrs:    flag.Hosts,
 		Source:   flag.Source,
 		Username: flag.User,
 		Password: flag.Password,
@@ -40,6 +40,7 @@ func New(flag *Flag) (*Mongo, error) {
 
 func (d *Mongo) connect(collection string) (*mgo.Session, *mgo.Collection) {
 	s := d.session.Copy()
+	s.SetSafe(&mgo.Safe{WMode: "majority", RMode: "majority", J: true})
 	c := s.DB(d.flag.DB).C(collection)
 	return s, c
 }
